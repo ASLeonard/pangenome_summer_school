@@ -23,7 +23,8 @@ Tools
  - [samtools](https://github.com/samtools/samtools)
  - [mdbg](https://github.com/ekimb/rust-mdbg)
  - [ragtag](https://github.com/malonge/RagTag)
-
+ - [minigraph](https://github.com/lh3/minigraph)
+ - [bandage](https://github.com/asl/BandageNG)
 
 ## Tasks
 
@@ -150,7 +151,78 @@ Day 3: 4:00pm – 6:00pm
 
 ## Data and tools
 
+Input
+ - HiFi alignments
+ - Assembled genomes
+ - Pangenome
+
+Tools
+ - [vg](https://github.com/vgteam/vg)
+ - [sniffles2](https://github.com/fritzsedlazeck/Sniffles)
+ - [jasmine](https://github.com/mkirsche/Jasmine)
+ - [bcftools](https://github.com/samtools/bcftools)
+
 ## Tasks
+
+We want to identify variation between the assemblies (and reference) directly from the pangenome.
+We can do this through `vg deconstruct`, going from a pangenome _.gfa_ (with relevant path information) to a variant _.vcf_.
+For this process, we need to specify **which** set of paths we consider to be the reference, as VCF requires a linear coordinate system.
+We also want to specify the ploidy as 1, because even though we mostly work on diploid samples, each assembly represents only 1 copy of a genome.
+
+```
+vg deconstruct -p "ARS_UCD2.0" --path-traversals --ploidy 1 -t 2 <graph.gfa>
+```
+
+Currently, deconstructing tends to output too many variants, especially if the graph is not well formed.
+For the moment, let's only consider structural variants, so we want to filter out small variants.
+```
+bcftools view -i 'abs(ILEN)>=50' -o graph.SVs.vcf graph.vcf
+```
+
+We can compare against a more conventional approach, which we will take as the "truth" (although it has its own weaknesses).
+
+```
+sniffles --input sample1.bam --snf sample1.snf
+```
+
+And then merge and sort across the samples
+```
+sniffles --input sample1.snf sample2.snf ... sampleN.snf --vcf multisample.vcf
+```
+
+Now we can check how many of the SVs we found through the graph and through the linear-reference approach are "the same".
+We can also play around with parameters to determine how strict we want to be when discussing "the same" SV.
+
+```
+jasmine --comma_filelist file_list=graph.SVs.vcf,sniffles.SVs.vcf threads=1 out_file={output}  \
+        genome_file={input.reference} --pre_normalize --ignore_strand --allow_intrasample --normalize_type \
+        {params.settings}
+```
+
+We can then calculate the concordance with
+```
+grep -oP "SUPP_VEC=\K\d+" <jasmine_output>
+```
+
+Which will tell us how many SVs are common to both sets and how many are private to each.
+The approaches are extremely different (as well as technical properties like alignment length/quality), but theoretically we want as high an agreement and as few privates as possible.
+Note, this method only compares the REF/ALT status of a variant, without telling us anything about how correct the per-sample genotyping was. This is a much more complex problem addressed through tools like [truvari](https://github.com/ACEnglish/truvari).
+
+We can do something similar for the small variants, again filtering the graph output
+```
+bcftools view -v snps --write-index -o graph.SNPs.vcf.gz graph.vcf
+```
+
+and comparing against a pre-made VCF of DeepVariant SNP calls using bcftools
+```
+bcftools isec -n +1 graph.SNPs.vcf.gz DV.SNPs.vcf.gz | awk '{++c[$5]} END {for (k in c) {print k,c[k]}}'
+```
+And again we expect as high overlap as possible.
+
+
+
+
+
 
 # Practical: Using a pangenome to Identify a known functional variant.
 Day 5: 2:00pm – 6:00pm
@@ -160,5 +232,9 @@ Day 5: 2:00pm – 6:00pm
  - D
 
 ## Data and tools
+
+Tools
+ - [odgi](https://github.com/pangenome/odgi)
+ - [impg](https://github.com/pangenome/impg)
 
 ## Tasks
