@@ -164,6 +164,8 @@ Tools
 
 ## Tasks
 
+### Finding pangenome variation
+
 We want to identify variation between the assemblies (and reference) directly from the pangenome.
 We can do this through `vg deconstruct`, going from a pangenome _.gfa_ (with relevant path information) to a variant _.vcf_.
 For this process, we need to specify **which** set of paths we consider to be the reference, as VCF requires a linear coordinate system.
@@ -178,6 +180,7 @@ For the moment, let's only consider structural variants, so we want to filter ou
 ```
 bcftools view -i 'abs(ILEN)>=50' -o graph.SVs.vcf graph.vcf
 ```
+### Comparing to liner reference variation
 
 We can compare against a more conventional approach, which we will take as the "truth" (although it has its own weaknesses).
 
@@ -220,21 +223,90 @@ bcftools isec -n +1 graph.SNPs.vcf.gz DV.SNPs.vcf.gz | awk '{++c[$5]} END {for (
 And again we expect as high overlap as possible.
 
 
-
-
-
-
 # Practical: Using a pangenome to Identify a known functional variant.
 Day 5: 2:00pm – 6:00pm
 
 ## Objectives
- - C
- - D
+ - Identify annotated genes overlapping/near pangenomic bubbles 
+ - Identify pangenomic regions associated with binary phenotypes
 
 ## Data and tools
+
+Input
+ - Pangenome
+ - Reference genome annotation
 
 Tools
  - [odgi](https://github.com/pangenome/odgi)
  - [impg](https://github.com/pangenome/impg)
+ - [bedtools](https://github.com/arq5x/bedtools2)
+ - [gafpack](https://github.com/ekg/gafpack)
 
 ## Tasks
+
+To start, we want to get the ARS-UCD2.0 annotation in gff format, giving us the location of genes.
+```
+wget annotation.gff
+```
+
+### Intersecting pangenome bubbles and genes
+
+We will then test for intersections between the annotation and pangenome "bubbles" (indicating some larger level of variation) from the minigraph gfa.
+```
+bedtools intersect -a annotation.gff -b minigraph.bubbles.bed > 
+```
+
+We could also approach this from the SV VCF we created, and check for potential events that are private to a subset of assemblies.
+We'll start by subsetting the VCF using `bcftools view` with the `-s <samples>` option within a [process substitution](https://en.wikipedia.org/wiki/Process_substitution) ("<(...)") to avoid creating intermediate files on disk.
+
+```
+bedtools intersect -a annotation.gff -b <(bcftools view -s <asm1,asm2> graph.SVs.vcf) > specific_genes.bed
+```
+
+We can also try and convert the gff (via BED) into the pangenome coordindates, and then load that into bandage so we can visualise the events better.
+```
+awk gff > bed
+https://github.com/AnimalGenomicsETH/KITKAT/blob/main/scripts/translate_bed_to_graph.py gfa bed
+```
+
+<_image on how to load BED in bandage>...
+
+### Pangenome association testing
+
+We can also look for potential variation that could be associated with a binary phenotype.
+This is a more "experimental" approach, but much more flexible in what we can identify.
+
+Let's start by purely analysing what is already present in the graph.
+We want to find regions where the graph clearly contains two (or more) "haplotypes", which could be associated with a phenotype.
+
+We can split the graph up into small chunks (say 1 Kb) using `odgi extract`, and the find the [Jaccard similarity score](https://en.wikipedia.org/wiki/Jaccard_index) between each pair of assemblies within this chunk.
+
+```
+odgi extract -i {params.og} -b {params.bed} -t {threads} -s
+for g in *.og
+do
+  odgi similarity -t {threads} -i $g | sed 's/:[0-9]\+-[0-9]\+//g' | awk -v S=${{g}} 'NR>1 && $2>$1 {{print S,$1,$2,$6}}'
+done | pigz -p {threads} > {params._output}
+```
+
+We can then examine regions where the phenotype-grouped samples are all similar but are very different across groups.
+
+Alternatively, we can make a presence/absence matrix, again chunking the genome into small windows.
+
+```
+ odgi pav -M -i 26.pggb.og -b <(echo -e "ARS_UCD1.2#0#26\t1000000\t2000000")
+```
+
+Now we can take this a step further, and integrate population level data from short read alignments to the pangenome.
+We want to gather the node-level coverage per sample after aligning with `vg giraffe`.
+
+```
+for S in samples
+do
+  gafpack -g pggb.gfa -a $S.gaf -l -c | awk -v S=$S '!/#/ {print S,$1,$2}' > $S.cov
+done
+```
+
+We can then test to see if there is any statistically significant variation in node coverage between assigned phenotype groups.
+
+
