@@ -124,38 +124,60 @@ ragtag
 ### Construct a chromosome pangenome
 
 Now we have our assembly, we can gather some other publically available assemblies.
+These have been named to follow [panSN](https://github.com/pangenome/PanSN-spec), so look like `sample#haplotype#contig`.
+This allows multiple assemblies from the same chromosome to still be distinguished, as well as grouping samples with haplotype-resolved assemblies (e.g., `ZEB#1#15` and `ZEB#2#15` being the two haplotypes for chromosome 15 for a Zebu sample).
+
 ```
-curl
+mkdir pangenome
+curl https://polybox.ethz.ch/index.php/s/j0Fjt63F1mG2XkB/download > pangenome/OBV.HiFi.hifiasm.asm.fa.gz
+curl https://polybox.ethz.ch/index.php/s/mNyJqihPEdWPNow/download > pangenome/BSW.HiFi.hifiasm.asm.fa.gz
+curl https://polybox.ethz.ch/index.php/s/x4q6tWW3WRp1rBF/download > pangenome/SIM.HiFi.hifiasm.asm.fa.gz
+curl https://polybox.ethz.ch/index.php/s/qSGYJVnOMIeCbW8/download > pangenome/NEL.HiFi.hifiasm.asm.fa.gz
+curl https://polybox.ethz.ch/index.php/s/97V6opMeRhEt6Ek/download > pangenome/WIS.HiFi.hifiasm.asm.fa.gz
 ```
 
 To get a quick overview, we can use minigraph to build a predominantly structural variation pangenome, using the reference genome as a "backbone" for variation.
-```
-mkdir pangenome
-minigraph -cxggs -c -L 50 -j 0.01 data/ARS-UCD1.2.fa.gz assemblies/* > pangenome/6_cattle.gfa
+First, we also rename the reference to follow panSN-spec (using the Hereford breed as the sample name).
+We then run minigraph with the assemblies, starting with the reference and then in order of increasing in genomic distance.
+
 ```
 
-We can explore properties of this graph using
+samtools faidx data/ARS-UCD1.2.fa.gz 25 | awk '$1~/^>/ {gsub(/>/,">HER#0#",$1)}1' | bgzip -@ 2 -c > pangenome/HER.fa.gz
+minigraph -cxggs -c -L 50 -j 0.01 pangenome/{HER,BSW,OBV,SIM,NEL,WIS}.fa.gz > pangenome/bovines.gfa
 ```
-gfatools stat pangenome/6_cattle.gfa
-gfatools bubble pangenome/6_cattle.gfa
+
+In particular, pay attention to the log output and consider the following questions:
+ - How many events are added to the graph in each iteration?
+ - Does that match expectations based on divergence?
+ - Since minigraph is quick to run, what happens if change around the *order* of assemblies?
+
+We can explore some other properties of this graph using
 ```
+gfatools stat pangenome/bovines.gfa
+gfatools bubble pangenome/bovines.gfa
+```
+
+---
 
 Since this graph is not too complicated, it should be relatively easy to load and explore in bandage.
 Take a look around the graph and see which regions look "tangled" or very simple.
 
+---
+
 We can also retrace the paths each assembly should take through the graph, again with minigraph
 ```
-for i in OBV BSW SIM
+for i in HER BSW OBV SIM NEL WIS
 do
-  minigraph -cxasm --call -t 4 pangenome/6_cattle.gfa assemblies/${i}.fa > pangenome/${i}.bed
+  minigraph -cxasm --call -t 4 pangenome/bovines.gfa pangenome/${i}.fa.gz > pangenome/${i}.bed
 done
 ```
 
 We can also confirm that "non-reference" sequence can be lost with minigraph, by checking the starting coordinate of our assemblies compared to the initial coordinates of the reference.
 
-Now let's build a more comprehensive pangenome, using pggb.
-There are several tools required to run pggb (wfmash, seqwish, smoothxg, GFAffix), and so can be challenging to install without running through singularity.
-These steps are also more compute-intensive, and so here we will just use a pre-built graph generated from the command
+Now we can also build a more comprehensive pangenome, using pggb.
+There are several tools required to run pggb (wfmash, seqwish, smoothxg, odgi, GFAffix), and so can be challenging to install without running through singularity.
+These steps are also more compute-intensive, and so here we can just use a pre-built graph generated from the command
+
 ```
 pggb ...
 ```
@@ -202,7 +224,7 @@ For this process, we need to specify **which** set of paths we consider to be th
 We also want to specify the ploidy as 1, because even though we mostly work on diploid samples, each assembly represents only 1 copy of a genome.
 
 ```
-vg deconstruct -p "ARS_UCD2.0" --path-traversals --ploidy 1 -t 2 <graph.gfa>
+vg deconstruct -p "ARS_UCD2.0" --path-traversals --ploidy 1 -t 2 <graph.gfa> ##LINUX ONLY
 ```
 
 Currently, deconstructing tends to output too many variants, especially if the graph is not well formed.
@@ -210,6 +232,7 @@ For the moment, let's only consider structural variants, so we want to filter ou
 ```
 bcftools view -i 'abs(ILEN)>=50' -o graph.SVs.vcf graph.vcf
 ```
+
 ### Comparing to liner reference variation
 
 We can compare against a more conventional approach, which we will take as the "truth" (although it has its own weaknesses).
