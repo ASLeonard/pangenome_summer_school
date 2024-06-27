@@ -173,6 +173,10 @@ done
 ```
 
 We can also confirm that "non-reference" sequence can be lost with minigraph, by checking the starting coordinate of our assemblies compared to the initial coordinates of the reference.
+```
+curl https://raw.githubusercontent.com/lh3/minigraph/master/misc/mgutils.js > tools/mgutils.js
+paste pangenome/{HER,BSW,OBV,SIM,NEL,WIS}.bed | k8 ../tools/mgutils.js merge - > pangenome/bovines.mg.variants
+```
 
 Now we can also build a more comprehensive pangenome, using pggb.
 There are several tools required to run pggb (wfmash, seqwish, smoothxg, odgi, GFAffix), and so can be challenging to install without running through singularity.
@@ -229,6 +233,7 @@ vg deconstruct -p "ARS_UCD2.0" --path-traversals --ploidy 1 -t 2 <graph.gfa> ##L
 
 Currently, deconstructing tends to output too many variants, especially if the graph is not well formed.
 For the moment, let's only consider structural variants, so we want to filter out small variants.
+
 ```
 bcftools view -i 'abs(ILEN)>=50' -o graph.SVs.vcf graph.vcf
 ```
@@ -238,26 +243,20 @@ bcftools view -i 'abs(ILEN)>=50' -o graph.SVs.vcf graph.vcf
 We can compare against a more conventional approach, which we will take as the "truth" (although it has its own weaknesses).
 
 ```
-sniffles --input sample1.bam --snf sample1.snf
-```
-
-And then merge and sort across the samples
-```
-sniffles --input sample1.snf sample2.snf ... sampleN.snf --vcf multisample.vcf
+sniffles --input OxO.HiFi.25.bam --vcf OxO.HiFi.sniffles.vcf --reference data/ARS-UCD1.2.fa.gz
 ```
 
 Now we can check how many of the SVs we found through the graph and through the linear-reference approach are "the same".
 We can also play around with parameters to determine how strict we want to be when discussing "the same" SV.
 
 ```
-jasmine --comma_filelist file_list=graph.SVs.vcf,sniffles.SVs.vcf threads=1 out_file={output}  \
-        genome_file={input.reference} --pre_normalize --ignore_strand --allow_intrasample --normalize_type \
-        {params.settings}
+jasmine --comma_filelist file_list=graph.SVs.vcf,OxO.HiFi.sniffles.vcf threads=1 out_file=pangenome/SV_concordance.vcf  \
+        genome_file=data/ARS-UCD1.2.fa.gz --pre_normalize --ignore_strand --allow_intrasample --normalize_type
 ```
 
-We can then calculate the concordance with
+We can then calculate the concordance with (you may want `grep -oE "SUPP_VEC=\d+"` instead on mac)
 ```
-grep -oP "SUPP_VEC=\K\d+" <jasmine_output>
+grep -oP "SUPP_VEC=\K\d+" pangenome/SV_concordance.vcf | sort | uniq -c
 ```
 
 Which will tell us how many SVs are common to both sets and how many are private to each.
@@ -299,30 +298,33 @@ Tools
 
 To start, we want to get the ARS-UCD2.0 annotation in gff format, giving us the location of genes.
 ```
-wget annotation.gff
+curl https://polybox.ethz.ch/index.php/s/gnReyfSopENjpxP/download > data/ARS-UCD1.2.exons.bed
 ```
 
 ### Intersecting pangenome bubbles and genes
 
 We will then test for intersections between the annotation and pangenome "bubbles" (indicating some larger level of variation) from the minigraph gfa.
 ```
-bedtools intersect -a annotation.gff -b minigraph.bubbles.bed > 
+bedtools intersect -a data/ARS-UCD1.2.exons.bed -b minigraph.bubbles.bed > 
 ```
 
 We could also approach this from the SV VCF we created, and check for potential events that are private to a subset of assemblies.
 We'll start by subsetting the VCF using `bcftools view` with the `-s <samples>` option within a [process substitution](https://en.wikipedia.org/wiki/Process_substitution) ("<(...)") to avoid creating intermediate files on disk.
 
 ```
-bedtools intersect -a annotation.gff -b <(bcftools view -s <asm1,asm2> graph.SVs.vcf) > specific_genes.bed
+bedtools intersect -a data/ARS-UCD1.2.exons.bed-b <(bcftools view -s <asm1,asm2> graph.SVs.vcf) > specific_genes.bed
 ```
 
-We can also try and convert the gff (via BED) into the pangenome coordindates, and then load that into bandage so we can visualise the events better.
+We can also try and convert the annotation (via BED) into the pangenome coordindates, and then load that into bandage so we can visualise the events better.
 ```
-awk gff > bed
 https://github.com/AnimalGenomicsETH/KITKAT/blob/main/scripts/translate_bed_to_graph.py gfa bed
 ```
 
-<_image on how to load BED in bandage>...
+---
+
+Let's see if we can find any interesting gene-SV regions in bandage!
+
+---
 
 ### Pangenome association testing
 
