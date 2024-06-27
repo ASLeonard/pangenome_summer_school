@@ -32,27 +32,41 @@ Tools
 
 First we need to gather some of the data we will be working
 ```
-wget reference
-wget reads
-wget short reads
+#Let's make a directory to store the data in
+mkdir data
+
+#Download a neatly named cattle reference, and then index it
+curl https://polybox.ethz.ch/index.php/s/d641EnjNf0TWw5f/download > data/ARS-UCD1.2.fa.gz
+samtools faidx data/ARS-UCD1.2.fa.gz
+ 
+#Download the HiFi reads from Original Braunvieh cow with sample accession SAMEA7759028.
+#These are only from chromosome 25 for simplicity. 
+
+https://polybox.ethz.ch/index.php/s/C7fEDiQoDweJKFU/download > data/OxO.HiFi.25.fq.gz
+
+#Download some pre-aligned short reads for the same animal and generate the csi index for it
+curl https://polybox.ethz.ch/index.php/s/OrFlXd0G54Ntx6n/download > data/OxO.Illumina.25.bam
+samtools index -c data/OxO.Illumina.25.bam
 ```
 
 Now we want to align the reads to the reference with minimap2
 ```
-minimap2 -a -x map-hifi -t 4 <reference> <reads> | samtools sort - -@ 4 --write-index -o F1.bam
+minimap2 -a -x map-hifi -t 4 data/ARS-UCD1.2.fa.gz data/OxO.HiFi.25.fastq.gz | samtools sort - -@ 4 --write-index -T $TMPDIR -o OxO.HiFi.25.bam
 ```
 
 Where we are piping the SAM output of minimap2 into samtools to directly create our BAM alignment file.
-For minimap2, the parameters are `-a` to output SAM, `-x map-hifi` to use mapping parameters appropriate for HiFi reads, and `-t 4` to use 4 threads.
-For samtools, we are coordinate-sorting the output with 4 threads (`-@ 4`) and creating the ".bai" index file on the fly (`--write-index`).
+For minimap2, the parameters are `-a` to output SAM with base-level alignment, `-x map-hifi` to use mapping parameters appropriate for HiFi reads, and `-t 4` to use 4 threads.
+For samtools, we are coordinate-sorting the output with 4 threads (`-@ 4`) and creating the ".csi" index file on the fly (`--write-index`).
 
 We can now load the alignments into IGV to inspect them to get a feel for the data.
 In particular, examine the alignments near the start/end of the chromosome as well as looking for large, complex variants.
 
-At this stage, we can also generate some basic output for our sample using 
+At this stage, we can also generate some simple output for our sample.
+We can generate a "consensus" sequence, effectively changing reference bases with variants from the alignments.
+We can also directly call variants from the alignments and get a set of SNPs.
 ```
-samtools consensus
-bcftools mpileup -Ou -f reference.fa alignments.bam | bcftools call -mv -Ob -o calls.bcf
+samtools consensus -@ 4 -X hifi -r 25 -a -l 0 -o OxO.HiFi.25.asm_consensus.fa OxO.HiFi.25.bam
+bcftools mpileup --threads 4 -Ou -r 25 -f data/ARS-UCD1.2.fa.gz OxO.HiFi.25.bam | bcftools call --threads 4 -mv --ploidy 2 --skip-variants indels --write-index=tbi -o OxO.HiFi.25.vcf.gz
 ```
 
 These are basic approaches, but might help give us a rough understanding of what to expect.
@@ -64,15 +78,26 @@ Now we have a basic overview of our data, we can generate a _de novo_ assembly.
 This uses only the sequencing reads, so there currently is no bias introduced by existing references which may have errors or true bioligical differences.
 
 ```
-target/release/rust-mdbg example/reads-0.00.fa.gz -k 7 --density 0.0008 -l 10 --minabund 2 --prefix example
-utils/magic_simplify example
+#there is an unresolved bug in mdbg that prevents reading gzipped fastq, so just need to extract it first
+gunzip -dc data/OxO.HiFi.25.fastq.gz > data/OxO.HiFi.25.fastq
+rust-mdbg -k 21 -l 14 --density 0.003 --bf --minabund 2 --prefix assemblies/OxO.HiFi.25.mdbg --threads 4 data/OxO.HiFi.25.fastq
+gfatools asm -u assemblies/OxO.HiFi.25.mdbg.gfa > assemblies/OxO.HiFi.25.mdbg.unitgs.gfa
+to_basespace --gfa assemblies/OxO.HiFi.25.mdbg.unitgs.gfa --sequences assemblies/OxO.HiFi.25.mdbg
+gfatools gfa2fa assemblies/OxO.HiFi.25.mdbg.unitgs.gfa.complete.gfa > assemblies/OxO.HiFi.25.asm_mdbg.fa
 ```
 
 Now we have our genome assembly, we want to quantify some basic stats about it.
 Let's go ahead and calculate the contiguity (N50).
-If the assembly was perfect, we would expect 1 contig and a length of ~50 Mb.
+If the assembly was perfect, we would expect 1 contig and a length of ~42 Mb.
+We can recalculate the N**G**50 using the expected genome length. 
+Does this improve or worsen the N50?
+
 ```
-calN50.js <asm.fa>
+mkdir tools
+curl https://raw.githubusercontent.com/lh3/calN50/master/calN50.js > tools/calN50.js
+k8 calN50.js assemblies/OxO.HiFi.25.asm_mdbg.fa
+k8 calN50.js -L 42350435 assemblies/OxO.HiFi.25.asm_mdbg.fa
+
 ```
 
 and we can also calculate the conserved gene completeness
@@ -83,9 +108,10 @@ compleasm run -a <asm.fa> -o completeness -l cetartiodactyla -L <dir> -t 4
 
 We can also re-align our assembly to the reference and inspect in IGV
 ```
-minimap2 -a -x asm5 -t 4 <reference> <asm> | samtools sort - -@ 4 --write-index -o F1_asm.bam
+minimap2 -a -x asm5 -t 4 data/ARS-UCD1.2.fa.gz assemblies/OxO.HiFi.25.asm_mdbg.fa | samtools sort - -@ 4 --write-index -o assemblies/OxO.HiFi.25.asm_mdbg.ARS-UCD1.2.bam
 ```
-Now using the "asm5" preset rather than "map-hifi".
+
+Now using the "asm5" preset rather than "map-hifi", as we are mapping an assembly and not reads.
 
 We can also scaffold the contigs, so they have the same direction and layout as the reference.
 Note, this **is** based on the reference, and so we are at risk of losing out on biological differences as we force our assembly to look more like the reference.
@@ -99,18 +125,19 @@ ragtag
 
 Now we have our assembly, we can gather some other publically available assemblies.
 ```
-wget other
+curl
 ```
 
 To get a quick overview, we can use minigraph to build a predominantly structural variation pangenome, using the reference genome as a "backbone" for variation.
 ```
-minigraph -cxggs -c -L 50 -j 0.01 <reference> <asm> <other> > graph.gfa
+mkdir pangenome
+minigraph -cxggs -c -L 50 -j 0.01 data/ARS-UCD1.2.fa.gz assemblies/* > pangenome/6_cattle.gfa
 ```
 
 We can explore properties of this graph using
 ```
-gfatools stat graph.gfa
-gfatools bubble graph.gfa
+gfatools stat pangenome/6_cattle.gfa
+gfatools bubble pangenome/6_cattle.gfa
 ```
 
 Since this graph is not too complicated, it should be relatively easy to load and explore in bandage.
@@ -118,7 +145,10 @@ Take a look around the graph and see which regions look "tangled" or very simple
 
 We can also retrace the paths each assembly should take through the graph, again with minigraph
 ```
-minigraph -cxasm --call -t16 graph.gfa sample-asm.fa > sample.bed
+for i in OBV BSW SIM
+do
+  minigraph -cxasm --call -t 4 pangenome/6_cattle.gfa assemblies/${i}.fa > pangenome/${i}.bed
+done
 ```
 
 We can also confirm that "non-reference" sequence can be lost with minigraph, by checking the starting coordinate of our assemblies compared to the initial coordinates of the reference.
