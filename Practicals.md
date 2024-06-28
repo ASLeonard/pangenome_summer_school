@@ -2,7 +2,7 @@
 Day 2: 2:00pm – 6:00pm
 
 ## Objectives
-We should be able to 
+We should be able to
  - Assemble genomes from long read sequencing data
  - Calculate quality metrics for assemblies
  - Build a graph pangenome from a collection of assemblies
@@ -28,6 +28,22 @@ Tools
 
 ## Tasks
 
+
+### Setting up the basics
+
+We will install conda/mamba to manage most of the software installation and virtual environments.
+After we install `mamba`, we will create an environment (called *ognigenoma* inside the file) and then activate it.
+```
+curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+bash Miniforge3-$(uname)-$(uname -m).sh
+
+mamba env create --file environment.yml
+mamba activate ognigenoma
+```
+
+We also want to download and install bandage to visualise pangenomes.
+https://github.com/asl/BandageNG/releases
+
 ### Exploring the raw data
 
 First we need to gather some of the data we will be working
@@ -38,20 +54,24 @@ mkdir data
 #Download a neatly named cattle reference, and then index it
 curl https://polybox.ethz.ch/index.php/s/d641EnjNf0TWw5f/download > data/ARS-UCD1.2.fa.gz
 samtools faidx data/ARS-UCD1.2.fa.gz
- 
+
 #Download the HiFi reads from Original Braunvieh cow with sample accession SAMEA7759028.
-#These are only from chromosome 25 for simplicity. 
+#These are only from chromosome 25 for simplicity.
 
 https://polybox.ethz.ch/index.php/s/C7fEDiQoDweJKFU/download > data/OxO.HiFi.25.fq.gz
 
-#Download some pre-aligned short reads for the same animal and generate the csi index for it
+#Download some pre-aligned short and ONT reads for the same animal and generate the csi index for it
 curl https://polybox.ethz.ch/index.php/s/OrFlXd0G54Ntx6n/download > data/OxO.Illumina.25.bam
-samtools index -c data/OxO.Illumina.25.bam
+samtools index -@ 2 -c data/OxO.Illumina.25.bam
+
+curl https://polybox.ethz.ch/index.php/s/saR530eBS8YimRp/download > data/OxO.ONT.25.bam
+samtools index -@ 2 -c data/OxO.ONT.25.bam
+
 ```
 
 Now we want to align the reads to the reference with minimap2
 ```
-minimap2 -a -x map-hifi -t 4 data/ARS-UCD1.2.fa.gz data/OxO.HiFi.25.fastq.gz | samtools sort - -@ 4 --write-index -T $TMPDIR -o OxO.HiFi.25.bam
+minimap2 -a -x map-hifi -t 4 data/ARS-UCD1.2.fa.gz data/OxO.HiFi.25.fastq.gz | samtools sort - -@ 4 --write-index -T $TMPDIR -o data/xO.HiFi.25.bam
 ```
 
 Where we are piping the SAM output of minimap2 into samtools to directly create our BAM alignment file.
@@ -65,8 +85,8 @@ At this stage, we can also generate some simple output for our sample.
 We can generate a "consensus" sequence, effectively changing reference bases with variants from the alignments.
 We can also directly call variants from the alignments and get a set of SNPs.
 ```
-samtools consensus -@ 4 -X hifi -r 25 -a -l 0 -o OxO.HiFi.25.asm_consensus.fa OxO.HiFi.25.bam
-bcftools mpileup --threads 4 -Ou -r 25 -f data/ARS-UCD1.2.fa.gz OxO.HiFi.25.bam | bcftools call --threads 4 -mv --ploidy 2 --skip-variants indels --write-index=tbi -o OxO.HiFi.25.vcf.gz
+samtools consensus -@ 4 -X hifi -r 25 -a -l 0 -o OxO.HiFi.25.asm_consensus.fa data/OxO.HiFi.25.bam
+bcftools mpileup --threads 4 -Ou -r 25 -f data/ARS-UCD1.2.fa.gz data/OxO.HiFi.25.bam | bcftools call --threads 4 -mv --ploidy 2 --skip-variants indels --write-index=tbi -o OxO.HiFi.25.vcf.gz
 ```
 
 These are basic approaches, but might help give us a rough understanding of what to expect.
@@ -78,6 +98,7 @@ Now we have a basic overview of our data, we can generate a _de novo_ assembly.
 This uses only the sequencing reads, so there currently is no bias introduced by existing references which may have errors or true bioligical differences.
 
 ```
+mkdir assemblies
 #there is an unresolved bug in mdbg that prevents reading gzipped fastq, so just need to extract it first
 gunzip -dc data/OxO.HiFi.25.fastq.gz > data/OxO.HiFi.25.fastq
 rust-mdbg -k 21 -l 14 --density 0.003 --bf --minabund 2 --prefix assemblies/OxO.HiFi.25.mdbg --threads 4 data/OxO.HiFi.25.fastq
@@ -89,7 +110,7 @@ gfatools gfa2fa assemblies/OxO.HiFi.25.mdbg.unitgs.gfa.complete.gfa > assemblies
 Now we have our genome assembly, we want to quantify some basic stats about it.
 Let's go ahead and calculate the contiguity (N50).
 If the assembly was perfect, we would expect 1 contig and a length of ~42 Mb.
-We can recalculate the N**G**50 using the expected genome length. 
+We can recalculate the N**G**50 using the expected genome length.
 Does this improve or worsen the N50?
 
 ```
@@ -100,11 +121,18 @@ k8 calN50.js -L 42350435 assemblies/OxO.HiFi.25.asm_mdbg.fa
 
 ```
 
-and we can also calculate the conserved gene completeness
+We can also calculate the conserved gene completeness based on the genes expected in this phylogeny.
+We'll manually install this tool due to unnecessary conflicts in conda.
+
 ```
+git clone https://github.com/huangnengCSU/compleasm.git
+(cd compleasm; pip install .) #temporarily moves into compleasm directory and installs
+
 compleasm download cetartiodactyla -L <dir>
 compleasm run -a <asm.fa> -o completeness -l cetartiodactyla -L <dir> -t 4
 ```
+
+Remember, we only assembled chromosome 25, so we should expect to find only a small fraction of the USCOs (around 460 for a good cattle genome).
 
 We can also re-align our assembly to the reference and inspect in IGV
 ```
@@ -118,8 +146,13 @@ Note, this **is** based on the reference, and so we are at risk of losing out on
 For high quality assemblies, this risk should be small.
 
 ```
-ragtag
+ragtag.py scaffold data/ARS-UCD1.2.fa.gz assemblies/OxO.HiFi.25.asm_mdbg.fa -o assemblies/scaffolding -t 4
+sed 's/_RagTag//g' assemblies/scaffolding/ragtag.scaffold.fasta > assemblies/OxO.HiFi.25.asm_mdbg.scaffolded.fa
 ```
+
+We can now take a look at how well scaffolded our genome is:
+ - how many gaps are there?
+ - what regions of the reference go uncovered?
 
 ### Construct a chromosome pangenome
 
@@ -129,11 +162,11 @@ This allows multiple assemblies from the same chromosome to still be distinguish
 
 ```
 mkdir pangenome
-curl https://polybox.ethz.ch/index.php/s/j0Fjt63F1mG2XkB/download > pangenome/OBV.HiFi.hifiasm.asm.fa.gz
-curl https://polybox.ethz.ch/index.php/s/mNyJqihPEdWPNow/download > pangenome/BSW.HiFi.hifiasm.asm.fa.gz
-curl https://polybox.ethz.ch/index.php/s/x4q6tWW3WRp1rBF/download > pangenome/SIM.HiFi.hifiasm.asm.fa.gz
-curl https://polybox.ethz.ch/index.php/s/qSGYJVnOMIeCbW8/download > pangenome/NEL.HiFi.hifiasm.asm.fa.gz
-curl https://polybox.ethz.ch/index.php/s/97V6opMeRhEt6Ek/download > pangenome/WIS.HiFi.hifiasm.asm.fa.gz
+curl https://polybox.ethz.ch/index.php/s/j0Fjt63F1mG2XkB/download > pangenome/OBV.fa.gz
+curl https://polybox.ethz.ch/index.php/s/mNyJqihPEdWPNow/download > pangenome/BSW.fa.gz
+curl https://polybox.ethz.ch/index.php/s/x4q6tWW3WRp1rBF/download > pangenome/SIM.fa.gz
+curl https://polybox.ethz.ch/index.php/s/qSGYJVnOMIeCbW8/download > pangenome/NEL.fa.gz
+curl https://polybox.ethz.ch/index.php/s/97V6opMeRhEt6Ek/download > pangenome/WIS.fa.gz
 ```
 
 To get a quick overview, we can use minigraph to build a predominantly structural variation pangenome, using the reference genome as a "backbone" for variation.
@@ -143,7 +176,7 @@ We then run minigraph with the assemblies, starting with the reference and then 
 ```
 
 samtools faidx data/ARS-UCD1.2.fa.gz 25 | awk '$1~/^>/ {gsub(/>/,">HER#0#",$1)}1' | bgzip -@ 2 -c > pangenome/HER.fa.gz
-minigraph -cxggs -c -L 50 -j 0.01 pangenome/{HER,BSW,OBV,SIM,NEL,WIS}.fa.gz > pangenome/bovines.gfa
+minigraph -cxggs -L 50 -j 0.01 pangenome/{HER,BSW,OBV,SIM,NEL,WIS}.fa.gz > pangenome/bovines.gfa
 ```
 
 In particular, pay attention to the log output and consider the following questions:
@@ -157,13 +190,6 @@ gfatools stat pangenome/bovines.gfa
 gfatools bubble pangenome/bovines.gfa
 ```
 
----
-
-Since this graph is not too complicated, it should be relatively easy to load and explore in bandage.
-Take a look around the graph and see which regions look "tangled" or very simple.
-
----
-
 We can also retrace the paths each assembly should take through the graph, again with minigraph
 ```
 for i in HER BSW OBV SIM NEL WIS
@@ -175,26 +201,47 @@ done
 We can also confirm that "non-reference" sequence can be lost with minigraph, by checking the starting coordinate of our assemblies compared to the initial coordinates of the reference.
 ```
 curl https://raw.githubusercontent.com/lh3/minigraph/master/misc/mgutils.js > tools/mgutils.js
-paste pangenome/{HER,BSW,OBV,SIM,NEL,WIS}.bed | k8 ../tools/mgutils.js merge - > pangenome/bovines.mg.variants
+paste pangenome/{HER,BSW,OBV,SIM,NEL,WIS}.bed | k8 tools/mgutils.js merge - > pangenome/bovines.mg.variants
 ```
+
+We can also approximately add P-lines to the minigraph gfa using a modified version, which will enable more general use of the file.
+
+```
+curl https://raw.githubusercontent.com/ASLeonard/minigraph/master/misc/mgutils.js > tools/mgutils_patched.js
+{ cat pangenome/bovines.gfa ; paste pangenome/{HER,BSW,OBV,SIM,NEL,WIS}.bed | k8 tools/mgutils_patched.js path <(echo -e "HER\nBSW\nOBV\nSIM\nNEL\nWIS") - ; } > pangenome/bovines_with_P_lines.gfa
+```
+---
+
+Since this graph is not too complicated, it should be relatively easy to load and explore in bandage.
+Take a look around the graph and see which regions look "tangled" or very simple.
+
+We can also play around with drawing the entire graph, subgregions by node ID, colouring specific paths by name, etc.
+
+We can also query the graph for specific sequences using minimap2 through the "Graph search" function, and then colour the graph by hits.
+
+Let's search for this sequence relating to the *PIGQ* gene.
+> GCTACATCCACCTCATGTCCCCCTTCATCGAGCACATCCTGTGGCACTTGGGTCTGTCGGCCTGCCTGGGCCTAACGGTCGCCCTGTCCATCCTGTCGGACATCATCTCCCTTCTCACCTTCCACATCTACTGCTTCTACGTCTACGGCGCCAGGTGGGTGTGCCGCCCCCCCCCCTACCCCCCGGCGGGCTGGCGCGTGCAGCCCCGGGCCCTGGGCGCAGACAGGCTCCCGGGCCGGGCGGGTGTGGGGTGGCCCCCACCCTGACGGGAGTGGTCTGCAGGCTCTACTCCCTGAAGATCCACGGCCTGTCCTCGCTGTGGCGCCTGTTCCGAGGGAAGAAGTGGAACGTCCTGCGCCAGCGCGTGGACTCCTGCTCCTACGACCTGGACCAGGTACCAGCTCCGTCCAGCCGGCCTTCGGCCTGCGCCGGCCCATGCAGTGGCCCGGGCATCACAAGGGGCAGCCTCGCTCCTGCTCCGCAGGCCCCAGGGGTTCAGGGAGCTGCAAGGGGCAGGGTGTATACGGGGCCATAACGGGGCAGAACTCGCCGCAGGCGGGGACAGACCCTGCTCCGGGAGGCTGCAGGACAGCAGGCGCTGGAGGTGAGTGCGCATGGGGCCTGGCTCGTCCTGTTAGCTTGTCCACACCCGCCACAGGGACCCTGAGTGCTGCCCTTCAGGGTGTTCTCTTCCTGCCTAATTTTTACCCCCCTCCTGTCTAGTGTATGGGCTGCACACCTCTCAGCTGGTCCTGTCTCTACCCACTCTCTGCCCTTGTGTCACCAGGTCTGGAGGGCAGGCATCCCTCCCAGGACTGGGGAGGGCTGTCCCAACTGGCATCAGGCAGCGGTGGGCGCTCCACCTCTGGACTGGCGGAGGGGCTATGGTCAGTGCAGGTGGGGGCGCCCCAGCGTGGGGCTCTTGCTGCTGCTGATGCTGGCATCCTTTCTCCTCGTAGCTGTTCATCGGGACCTTGCTCTTCACCATCCTGATTTTCCTGCTTCCTACCACGGCCCTGTACTACCTGGTGTTCACCCTGGTGAGCCGAGTGCCACGTGCGCAGAGTGGTGACTGCCGGCTCTGCCTACCAGCGGGCAGCTGTGGGCAGACCACCCACCTGTGCCAGCCACAACAGAGGGTGGCTGTTCTGGACTCTGTGTACTGGGCCCTGGAGTGGACAGGGGTCCACCCTGGGGGTACCACCCCCTACTGCCCCGGCATACGCCGCTGGATGCATGGAGGGCAGGGCTCTCCGTAGTGCGGGGGGGCGGAGTGTGGCCAGCAGAGGGGCGTGGTACCCAGGTGGCCAGGCCGAGGGGCCAGTGGCGTGTGTCCCTGGGTTGGAGTGCCCCGTCTTCTGAGTGGGAGGGGGTTTCGTGACTCCTGTGCTCAGGCCTCAGGTTCAGGGCTGGGCCCCTGCACGCCCCGGGGACCTGTCAGGCCGCTCAGCTCAGGCATGTGCAGCATGGCTCTGGCCACGGTCCCAGGCCCAAGACCCTGAGCACTGTCTGTGCTGCAGCTCCGGCTCCTAGTGGTCACCGTGCAGGGCCTGGTCCATCTGCTCGTGGACCTCATCAACTCGCTGCCGCTGTACTCGCTTGGCCTCCGGCTGTGCCGGCCCTACAGGCTTGCGGGTAGGTCTGCACGCTGGCCAGGGAGCACGCTTGGGGCCCTGGAAGCCGCGGTTTGTGTGGCAGGCAGGCAGGGAGCACAGGGCCCTGGTTCTGGGGCGTGAGCTTCAGGGGGAGCCCGCCTTCAGGTTCAGAGGCTGCACGCGCAGCCCTCCTGCCTCCTGAGCCTTTCCTGGGATGAGTGTGCAGTTTGCTCGGAAGCGTGCCTGCAGTGTCGCATGGGCAGTGCCTGTGTGTGGCTCAGAAGAGAGACGTGTCCCCTGTGGCTGTGAGGCTGTGTGCCTGCTGGCATCCCTCCACTGGGGGCTGGCCCCCCAGAAGACTGCTGCCTGCTGCGGCCACACTGGCCAGCCCGGCCACCCCCACTGGCCCCCCTGCAGGCAGAGGCCCCTGTCTGCATGCTGACATCAGCTGCAGGTTGGCCAGATGCCCCTGACGGGAGGCCGTCCCCACTGCAGGCACAGGGAGGCCAGACCCGACTGGTCAGAGTTGTGGTCCAGCCTACCCAGTGCAGGGTCTTTGAACAGTCGGGGAAACTGGGGGTTCCTGGCGTGGCCCCCGGGTGACCAGTGTGCCCAGGAGGCCCTGGGCTGGTTTGCAGCCAGCAGCTCAGCCCACCCCAGAGCTTGTGGCGGCTGCTCGCAGCCAGTTTGGAGTCAGGAGACATGAATGTGCGTGTTTGTGGGCTTTAGGCCTTGAGTCTGCCCACCGGATGTCCTCAAACCCTCTTTCCGAGAGCTTCCTCCGCTGACCCCCAGGTGGCCCAGGCTCCCCCAGTCCCCACCACACCTCAGCCCCCGGACCTGGCACCTCCCTGGCCCCGCCTGCGCTCAGGCCTGCGCAGTCCTTTTAACTTCCCAGGAAAGGAAAGGCTGCAGATGCCGCCTTTTCTCTCCACTGCGTTGCCTTGGGGCCTCTTCATCAATTGATAATTAGCTCCTATTTCTCCTTTTAAGAACCTTCCACCTTGGGGATCCCCAGGCATGGGAGCCTACACTGCAGGCTAGAGTGTGGTGGGTCCCCGAGTCAGCTGTGCTGGAAGGCACTGTGATGAGCAGGGTGCCCACCCCCCAGTGGGTGCTGTGTCCACTCTAGGAAACCCCTGCCCTGCTCACAGAGCAGCACAGCCTGCTGGCTCTTCCCTGCCTGCAGACCCTGGGCTTTGGTCTCAGTGCGGTTCTGCTGGAGCTCTGGTGAGGGGCGGCTGCTGCCCACAACGTGCAGCCCTCCAAGGGGCGCACTGCGGGGACCGCCCCGCCTCACCGGGCCTCACTCTCCTCACAGCCGGCGTGAAGTTCCGGGTCCTGGAGCACGAGGCTGGCCGGCCCCTGCGCCTCCTGATGCAG
+
+---
 
 Now we can also build a more comprehensive pangenome, using pggb.
 There are several tools required to run pggb (wfmash, seqwish, smoothxg, odgi, GFAffix), and so can be challenging to install without running through singularity.
 These steps are also more compute-intensive, and so here we can just use a pre-built graph generated from the command
 
 ```
-pggb ...
+pggb -i pangenome/25.fa.gz -o pangenome/25.pggb -t 12 -s 25k -p 95 -k 23
 ```
 
 We can calculate some similar stats using gfatools again, and compare to the minigraph graph generated from the **same** assemblies.
 Similarly, we can load this graph in bandage and attempt to visualise the pangenome.
 
 We can extract a subset of that graph using odgi (linux-only)
+
 ```
 odgi extract -i <...>
 ```
 
-and then much more managably visualise the subgraph.
+and then much more manageably visualise the subgraph.
 
 
 # Practical: Identification of small and structural variants.
@@ -228,36 +275,80 @@ For this process, we need to specify **which** set of paths we consider to be th
 We also want to specify the ploidy as 1, because even though we mostly work on diploid samples, each assembly represents only 1 copy of a genome.
 
 ```
-vg deconstruct -p "ARS_UCD2.0" --path-traversals --ploidy 1 -t 2 <graph.gfa> ##LINUX ONLY
+vg deconstruct -p "ARS_UCD2.0" --path-traversals --ploidy 1 -t 2 pangenome/bovines_with_P_lines.gfa > pangenome/minigraph.vcf ##LINUX ONLY
+vcfbub -l 0 -a 10000 --input pangenome/minigraph.vcf | vcfwave -I 1000 -t 4 > pangenome/minigraph.decom.vcf
+
+
+#alternatively download the file that it would have produced if vg won't run for you
+curl > graph.gfa
 ```
 
 Currently, deconstructing tends to output too many variants, especially if the graph is not well formed.
+One such example is
+>HER     211583  >17>19  ACATATATATATGTATATATGTATATATATGTATATGTGTATATATATATATATATATATATATATAC    ATATAT  60      .       AC=2;AF=0.4;AN=5;AT=>17>18>19,>17>3240>19;NS=5;LV=0     GT      0       1       0       0       1
+
+Where the reference starts "ACAT..." while the deletion alternate starts "ATAT...".
+The initial "A" is common to both, while the next base is really a SNP (C→T), so this should be split into a SNP and a slightly smaller deletion.
+However, the genotyping gets messed up, those "missing" samples **should** have the SNP.
+All these tools are work-in-progress, so be careful!
+
+>HER     211583  >17>19_1        ACATATATATATGTATATATGTATATATATGTATATGTGTATATATATATATATATATATATA A       60      .       AC=2;AF=0.400000;AN=5;AT=>17>18>19;NS=5;LV=0;ORIGIN=HER:211583;LEN=62;TYPE=del  GT      0       1       0       0       1  
+HER     211650  >17>19_2        C       T       60      . AC=2;AF=0.400000;AN=5;AT=>17>18>19;NS=5;LV=0;ORIGIN=HER:211583;LEN=1;TYPE=snp   GT      0       .       0       0       .
+
+
 For the moment, let's only consider structural variants, so we want to filter out small variants.
 
 ```
 bcftools view -i 'abs(ILEN)>=50' -o graph.SVs.vcf graph.vcf
 ```
 
-### Comparing to liner reference variation
+### Comparing to linear reference variation
 
 We can compare against a more conventional approach, which we will take as the "truth" (although it has its own weaknesses).
+We'll call SVs with sniffle2 using both the HiFi and ONT reads from the same individual.
 
 ```
-sniffles --input OxO.HiFi.25.bam --vcf OxO.HiFi.sniffles.vcf --reference data/ARS-UCD1.2.fa.gz
+sniffles --input data/OxO.HiFi.25.bam --vcf OxO.HiFi.sniffles.vcf --reference data/ARS-UCD1.2.fa.gz
+sniffles --input data/OxO.ONT.25.bam --vcf OxO.ONT.sniffles.vcf --reference data/ARS-UCD1.2.fa.gz
 ```
 
 Now we can check how many of the SVs we found through the graph and through the linear-reference approach are "the same".
 We can also play around with parameters to determine how strict we want to be when discussing "the same" SV.
-
+We'll use jasmine for this
 ```
-jasmine --comma_filelist file_list=graph.SVs.vcf,OxO.HiFi.sniffles.vcf threads=1 out_file=pangenome/SV_concordance.vcf  \
-        genome_file=data/ARS-UCD1.2.fa.gz --pre_normalize --ignore_strand --allow_intrasample --normalize_type
+jasmine --comma_filelist file_list=graph.SVs.vcf,OxO.HiFi.sniffles.vcf,OxO.ONT.sniffles.vcf threads=1 out_file=pangenome/SV_concordance.vcf genome_file=data/ARS-UCD1.2.fa.gz --pre_normalize --ignore_strand --allow_intrasample --normalize_type max_dist=50 max_dist_linear=.5 min_seq_id=0.5
 ```
 
 We can then calculate the concordance with (you may want `grep -oE "SUPP_VEC=\d+"` instead on mac)
 ```
-grep -oP "SUPP_VEC=\K\d+" pangenome/SV_concordance.vcf | sort | uniq -c
+grep -oP "SUPP_VEC=\K\d+" pangenome/SV_concordance.vcf | sort | uniq -c > pangenome/SV_concordance.csv
 ```
+
+which will tell us how many SVs are found across different samples.
+
+We can then run the following python code to make an UpSet plot.
+```python
+import matplotlib.pyplot as plt
+import upsetplot
+
+def parser(fname, names):
+    data, memberships = [], []
+    for line in open(fname):
+        parts = line.split()
+        data.append(int(parts[0])/norm)
+        memberships.append([names[i] for i,j in enumerate(parts[1]) if int(j)])
+    return memberships, data
+
+upsetplot.plot(upsetplot.from_memberships(*parser('pangenome/SV_concordance.csv',['graph','HiFi','ONT'])))
+plt.show()
+```
+
+We can experiment with different SV merging "strictness", requiring more/less overlap of SVs, more/less sequence identity, etc.
+```
+stricter: 'max_dist=1 max_dist_linear=.05 min_seq_id=0.95'
+lenient: 'max_dist_linear=1 max_dist=5000'
+```
+
 
 Which will tell us how many SVs are common to both sets and how many are private to each.
 The approaches are extremely different (as well as technical properties like alignment length/quality), but theoretically we want as high an agreement and as few privates as possible.
@@ -265,7 +356,7 @@ Note, this method only compares the REF/ALT status of a variant, without telling
 
 We can do something similar for the small variants, again filtering the graph output
 ```
-bcftools view -v snps --write-index -o graph.SNPs.vcf.gz graph.vcf
+bcftools view -v snps --write-index=tbi -o graph.SNPs.vcf.gz graph.vcf
 ```
 
 and comparing against a pre-made VCF of DeepVariant SNP calls using bcftools
@@ -275,11 +366,11 @@ bcftools isec -n +1 graph.SNPs.vcf.gz DV.SNPs.vcf.gz | awk '{++c[$5]} END {for (
 And again we expect as high overlap as possible.
 
 
-# Practical: Using a pangenome to Identify a known functional variant.
+# Practical: Using a pangenome to identify a known functional variant.
 Day 5: 2:00pm – 6:00pm
 
 ## Objectives
- - Identify annotated genes overlapping/near pangenomic bubbles 
+ - Identify annotated genes overlapping/near pangenomic bubbles
  - Identify pangenomic regions associated with binary phenotypes
 
 ## Data and tools
@@ -297,6 +388,7 @@ Tools
 ## Tasks
 
 To start, we want to get the ARS-UCD2.0 annotation in gff format, giving us the location of genes.
+
 ```
 curl https://polybox.ethz.ch/index.php/s/gnReyfSopENjpxP/download > data/ARS-UCD1.2.exons.bed
 ```
@@ -304,20 +396,25 @@ curl https://polybox.ethz.ch/index.php/s/gnReyfSopENjpxP/download > data/ARS-UCD
 ### Intersecting pangenome bubbles and genes
 
 We will then test for intersections between the annotation and pangenome "bubbles" (indicating some larger level of variation) from the minigraph gfa.
+
 ```
-bedtools intersect -a data/ARS-UCD1.2.exons.bed -b minigraph.bubbles.bed > 
+gfatools bubble pangenome/bovines_with_P_lines.gfa | cut -f -3,12 | sed 's/HER#0#//' > pangenome/minigraph.bubbles.bed
+bedtools intersect -a data/ARS-UCD1.2.exons.bed -b pangenome/minigraph.bubbles.bed > pangenome/minigraph_SV_overlaps.bed
 ```
+
+We can also require more overlap with e.g., `-f 0.5` requiring that at least 50% of the exon is overlapped by an SV to be reported.
 
 We could also approach this from the SV VCF we created, and check for potential events that are private to a subset of assemblies.
 We'll start by subsetting the VCF using `bcftools view` with the `-s <samples>` option within a [process substitution](https://en.wikipedia.org/wiki/Process_substitution) ("<(...)") to avoid creating intermediate files on disk.
 
 ```
-bedtools intersect -a data/ARS-UCD1.2.exons.bed-b <(bcftools view -s <asm1,asm2> graph.SVs.vcf) > specific_genes.bed
+bedtools intersect -a data/ARS-UCD1.2.exons.bed -b <(bcftools view -s <asm1,asm2> graph.SVs.vcf) > specific_genes.bed
 ```
 
 We can also try and convert the annotation (via BED) into the pangenome coordindates, and then load that into bandage so we can visualise the events better.
 ```
-https://github.com/AnimalGenomicsETH/KITKAT/blob/main/scripts/translate_bed_to_graph.py gfa bed
+curl https://github.com/AnimalGenomicsETH/KITKAT/blob/main/scripts/translate_bed_to_graph.py > tools/translate_bed_to_graph.py
+python translate_bed_to_graph.py pangenome/bovines.gfa data/ARS-UCD1.2.exons.bed > pangenome/ARS-UCD1.2.exons.graph.bed
 ```
 
 ---
@@ -363,5 +460,3 @@ done
 ```
 
 We can then test to see if there is any statistically significant variation in node coverage between assigned phenotype groups.
-
-
