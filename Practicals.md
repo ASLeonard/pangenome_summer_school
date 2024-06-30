@@ -28,7 +28,6 @@ Tools
 
 ## Tasks
 
-
 ### Setting up the basics
 
 We will install conda/mamba to manage most of the software installation and virtual environments.
@@ -41,7 +40,10 @@ mamba env create --file environment.yml
 mamba activate ognigenoma
 ```
 
-We also want to download and install bandage to visualise pangenomes.
+We also want to download and install IGV to inspect alignments and bandage to visualise pangenomes.
+
+
+https://igv.org/doc/desktop/#DownloadPage/
 https://github.com/asl/BandageNG/releases
 
 ### Exploring the raw data
@@ -78,10 +80,16 @@ Where we are piping the SAM output of minimap2 into samtools to directly create 
 For minimap2, the parameters are `-a` to output SAM with base-level alignment, `-x map-hifi` to use mapping parameters appropriate for HiFi reads, and `-t 4` to use 4 threads.
 For samtools, we are coordinate-sorting the output with 4 threads (`-@ 4`) and creating the ".csi" index file on the fly (`--write-index`).
 
-We can now load the alignments into IGV to inspect them to get a feel for the data.
+---
+
+We can now load the alignments into **IGV** to inspect them to get a feel for the data.
 In particular, examine the alignments near the start/end of the chromosome as well as looking for large, complex variants.
 
-At this stage, we can also generate some simple output for our sample.
+Also load the Illumina and ONT r9 data and see how the alignments compare for different reads from the same sample!
+
+---
+
+At this stage, we can also generate some simple analyses for our sample.
 We can generate a "consensus" sequence, effectively changing reference bases with variants from the alignments.
 We can also directly call variants from the alignments and get a set of SNPs.
 ```
@@ -95,13 +103,16 @@ These are basic approaches, but might help give us a rough understanding of what
 ### _De novo_ assembly of a cattle chromosome
 
 Now we have a basic overview of our data, we can generate a _de novo_ assembly.
-This uses only the sequencing reads, so there currently is no bias introduced by existing references which may have errors or true bioligical differences.
+This uses only the sequencing reads, so there currently is no _bias_ introduced by existing references which may have errors or true biological differences.
 
 ```
 mkdir assemblies
 #there is an unresolved bug in mdbg that prevents reading gzipped fastq, so just need to extract it first
 gunzip -dc data/OxO.HiFi.25.fastq.gz > data/OxO.HiFi.25.fastq
-rust-mdbg -k 21 -l 14 --density 0.003 --bf --minabund 2 --prefix assemblies/OxO.HiFi.25.mdbg --threads 4 data/OxO.HiFi.25.fastq
+rust-mdbg -k 31 -l 24 --density 0.003 --bf --minabund 2 --prefix assemblies/OxO.HiFi.25.mdbg --threads 4 data/OxO.HiFi.25.fastq
+
+## magic simplify?
+
 gfatools asm -u assemblies/OxO.HiFi.25.mdbg.gfa > assemblies/OxO.HiFi.25.mdbg.unitgs.gfa
 to_basespace --gfa assemblies/OxO.HiFi.25.mdbg.unitgs.gfa --sequences assemblies/OxO.HiFi.25.mdbg
 gfatools gfa2fa assemblies/OxO.HiFi.25.mdbg.unitgs.gfa.complete.gfa > assemblies/OxO.HiFi.25.asm_mdbg.fa
@@ -140,6 +151,8 @@ minimap2 -a -x asm5 -t 4 data/ARS-UCD1.2.fa.gz assemblies/OxO.HiFi.25.asm_mdbg.f
 ```
 
 Now using the "asm5" preset rather than "map-hifi", as we are mapping an assembly and not reads.
+Where does the assembly look the best and where does it look the worst?
+How does this relate to the choice of assembler?
 
 We can also scaffold the contigs, so they have the same direction and layout as the reference.
 Note, this **is** based on the reference, and so we are at risk of losing out on biological differences as we force our assembly to look more like the reference.
@@ -153,6 +166,9 @@ sed 's/_RagTag//g' assemblies/scaffolding/ragtag.scaffold.fasta > assemblies/OxO
 We can now take a look at how well scaffolded our genome is:
  - how many gaps are there?
  - what regions of the reference go uncovered?
+
+Since it is also so quick to generate these genome assemblies, what happens if we play around with the parameters (e.g., `-k`, `-l`, etc.)?
+It is often difficult to understand how these parameters shape the outcome...
 
 ### Construct a chromosome pangenome
 
@@ -229,7 +245,11 @@ There are several tools required to run pggb (wfmash, seqwish, smoothxg, odgi, G
 These steps are also more compute-intensive, and so here we can just use a pre-built graph generated from the command
 
 ```
-pggb -i pangenome/25.fa.gz -o pangenome/25.pggb -t 12 -s 25k -p 95 -k 23
+##LINUX ONLY
+mkdir pangenome/pggb
+pggb -i pangenome/25.fa.gz -o pangenome/pggb -t 12 -s 25k -p 95 -k 23
+cp pangenome/pggb/*smooth.final.gfa pangenome/25.pggb.gfa
+cp pangenome/pggb/*smooth.final.og pangenome/25.pggb.og
 ```
 
 We can calculate some similar stats using gfatools again, and compare to the minigraph graph generated from the **same** assemblies.
@@ -238,7 +258,8 @@ Similarly, we can load this graph in bandage and attempt to visualise the pangen
 We can extract a subset of that graph using odgi (linux-only)
 
 ```
-odgi extract -i <...>
+##LINUX ONLY
+odgi extract -i pangenome/25.pggb.og -
 ```
 
 and then much more manageably visualise the subgraph.
@@ -275,12 +296,14 @@ For this process, we need to specify **which** set of paths we consider to be th
 We also want to specify the ploidy as 1, because even though we mostly work on diploid samples, each assembly represents only 1 copy of a genome.
 
 ```
-vg deconstruct -p "ARS_UCD2.0" --path-traversals --ploidy 1 -t 2 pangenome/bovines_with_P_lines.gfa > pangenome/minigraph.vcf ##LINUX ONLY
+##LINUX ONLY
+vg deconstruct -p "HER" --path-traversals --ploidy 1 -t 2 pangenome/bovines_with_P_lines.gfa > pangenome/minigraph.vcf
 vcfbub -l 0 -a 10000 --input pangenome/minigraph.vcf | vcfwave -I 1000 -t 4 > pangenome/minigraph.decom.vcf
 
 
 #alternatively download the file that it would have produced if vg won't run for you
-curl > graph.gfa
+curl https://polybox.ethz.ch/index.php/s/gMjAk0F3UZQP0UA/download > pangenome/minigraph.decom.vcf.gz
+bgzip -d pangenome/minigraph.decom.vcf.gz
 ```
 
 Currently, deconstructing tends to output too many variants, especially if the graph is not well formed.
@@ -299,7 +322,7 @@ HER     211650  >17>19_2        C       T       60      . AC=2;AF=0.400000;AN=5;
 For the moment, let's only consider structural variants, so we want to filter out small variants.
 
 ```
-bcftools view -i 'abs(ILEN)>=50' -o graph.SVs.vcf graph.vcf
+bcftools view -i 'abs(ILEN)>=50' -o pangenome/minigraph.SV.vcf pangenome/minigraph.decom.vcf
 ```
 
 ### Comparing to linear reference variation
@@ -316,7 +339,7 @@ Now we can check how many of the SVs we found through the graph and through the 
 We can also play around with parameters to determine how strict we want to be when discussing "the same" SV.
 We'll use jasmine for this
 ```
-jasmine --comma_filelist file_list=graph.SVs.vcf,OxO.HiFi.sniffles.vcf,OxO.ONT.sniffles.vcf threads=1 out_file=pangenome/SV_concordance.vcf genome_file=data/ARS-UCD1.2.fa.gz --pre_normalize --ignore_strand --allow_intrasample --normalize_type max_dist=50 max_dist_linear=.5 min_seq_id=0.5
+jasmine --comma_filelist file_list=pangenome/minigraph.SV.vcf,OxO.HiFi.sniffles.vcf,OxO.ONT.sniffles.vcf threads=1 out_file=pangenome/SV_concordance.vcf genome_file=data/ARS-UCD1.2.fa.gz --pre_normalize --ignore_strand --allow_intrasample --normalize_type max_dist=50 max_dist_linear=.5 min_seq_id=0.5
 ```
 
 We can then calculate the concordance with (you may want `grep -oE "SUPP_VEC=\d+"` instead on mac)
@@ -325,6 +348,7 @@ grep -oP "SUPP_VEC=\K\d+" pangenome/SV_concordance.vcf | sort | uniq -c > pangen
 ```
 
 which will tell us how many SVs are found across different samples.
+Looking at regions where there is less agreement between the different variant sets may be useful to identify problematic regions in the graph, **or** regions where linear reference alignments of even long reads fail!
 
 We can then run the following python code to make an UpSet plot.
 ```python
@@ -431,14 +455,15 @@ This is a more "experimental" approach, but much more flexible in what we can id
 Let's start by purely analysing what is already present in the graph.
 We want to find regions where the graph clearly contains two (or more) "haplotypes", which could be associated with a phenotype.
 
-We can split the graph up into small chunks (say 1 Kb) using `odgi extract`, and the find the [Jaccard similarity score](https://en.wikipedia.org/wiki/Jaccard_index) between each pair of assemblies within this chunk.
+We can split the graph up into small chunks (say 100 Kb) using `odgi extract`, and the find the [Jaccard similarity score](https://en.wikipedia.org/wiki/Jaccard_index) between each pair of assemblies within this chunk.
 
 ```
-odgi extract -i {params.og} -b {params.bed} -t {threads} -s
+bedtools makewindows -g <(awk '$1==25' data/ARS-UCD1.2.fa.gz.fai) -w 100000 > pangenome/100Kb.windows.bed
+odgi extract -i pangenome/25.pggb.og -b pangenome/100Kb.windows.bed -t 4 -s
 for g in *.og
 do
-  odgi similarity -t {threads} -i $g | sed 's/:[0-9]\+-[0-9]\+//g' | awk -v S=${{g}} 'NR>1 && $2>$1 {{print S,$1,$2,$6}}'
-done | pigz -p {threads} > {params._output}
+  odgi similarity -t 4 -i $g | sed 's/:[0-9]\+-[0-9]\+//g' | awk -v S=${{g}} 'NR>1 && $2>$1 {{print S,$1,$2,$6}}'
+done | pigz -p 4 > pangenome/jaccard.100Kb.csv
 ```
 
 We can then examine regions where the phenotype-grouped samples are all similar but are very different across groups.
@@ -446,7 +471,7 @@ We can then examine regions where the phenotype-grouped samples are all similar 
 Alternatively, we can make a presence/absence matrix, again chunking the genome into small windows.
 
 ```
- odgi pav -M -i 26.pggb.og -b <(echo -e "ARS_UCD1.2#0#26\t1000000\t2000000")
+ odgi pav -M -i pangenome/25.pggb.og -b <(echo -e "HER#0#25\t1000000\t2000000")
 ```
 
 Now we can take this a step further, and integrate population level data from short read alignments to the pangenome.
@@ -455,8 +480,29 @@ We want to gather the node-level coverage per sample after aligning with `vg gir
 ```
 for S in samples
 do
-  gafpack -g pggb.gfa -a $S.gaf -l -c | awk -v S=$S '!/#/ {print S,$1,$2}' > $S.cov
+  gafpack -g pangenome/25.pggb.gfa -a $S.gaf -l -c | awk -v S=$S '!/#/ {print S,$1,$2}' > $S.cov
 done
 ```
 
 We can then test to see if there is any statistically significant variation in node coverage between assigned phenotype groups.
+
+---
+
+Minigraph analysis version.
+
+```python
+import regex
+from collections import defaultdict
+
+paths = {line.split()[1]:{int(N) for N in regex.split(r'\D',line.split()[2])[:-1] if N} for line in open('pangenome/bovines_with_P_lines.gfa') if line[0] == 'P'}
+
+nodes_as_keys = defaultdict(list)
+for K,V in paths.items():
+    for node in V:
+        nodes_as_keys[node].append(K)
+
+nodes_private_to_pairings = defaultdict(list)
+for K,V in nodes_as_keys.items():
+    nodes_private_to_pairings[tuple(sorted(V))].append(K)
+nodes_private_to_pairings.keys()
+```
