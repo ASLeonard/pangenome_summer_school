@@ -8,9 +8,10 @@ dependencies:
   - bedtools=2.31.1=h6372da2_1
   - bzip2=1.0.8=h10d778d_5
   - c-ares=1.28.1=h10d778d_0
-  - ca-certificates=2024.6.2=h8857fd0_0
+  - ca-certificates=2024.7.4=h8857fd0_0
   - gfatools=0.5=h45fc8d7_4
   - gsl=2.7=h93259b0_0
+  - hifiasm=0.19.9=h94ec1f5_0
   - hmmer=3.4=h7133b54_1
   - htslib=1.20=hec81eee_1
   - intervaltree=3.1.0=pyhd8ed1ab_1

@@ -170,6 +170,15 @@ We can now take a look at how well scaffolded our genome is:
 Since it is also so quick to generate these genome assemblies, what happens if we play around with the parameters (e.g., `-k`, `-l`, etc.)?
 It is often difficult to understand how these parameters shape the outcome...
 
+
+We can also run `hifiasm`, a more resource-intensive assembler but likely to produce better results.
+
+Let's build a hifiasm assembly and then we can repeat the quality assessment of the assembly.
+```
+hifiasm -t 4 -o assemblies/OxO.HiFi.25.asm_hifiasm --primary data/OxO.HiFi.fastq.gz
+gfatools gfa2fa assemblies/OxO.HiFi.25.asm_hifiasm.p_ctg.gfa > assemblies/OxO.HiFi.25.asm_hifiasm.fa
+```
+
 ### Construct a chromosome pangenome
 
 Now we have our assembly, we can gather some other publically available assemblies.
@@ -247,7 +256,10 @@ These steps are also more compute-intensive, and so here we can just use a pre-b
 ```
 ##LINUX ONLY
 mkdir pangenome/pggb
-pggb -i pangenome/25.fa.gz -o pangenome/pggb -t 12 -s 25k -p 95 -k 23
+cat pangenome/{HER,BSW,OBV,SIM,NEL,WIS}.fa.gz > pangenome/25.fa.gz
+samtools faidx pangenome/25.fa.gz
+
+pggb -i pangenome/25.fa.gz -o pangenome/pggb -t 4 -s 50k -p 97
 cp pangenome/pggb/*smooth.final.gfa pangenome/25.pggb.gfa
 cp pangenome/pggb/*smooth.final.og pangenome/25.pggb.og
 ```
