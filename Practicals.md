@@ -73,7 +73,7 @@ samtools index -@ 2 -c data/OxO.ONT.25.bam
 
 Now we want to align the reads to the reference with minimap2
 ```
-minimap2 -a -x map-hifi -t 4 data/ARS-UCD1.2.fa.gz data/OxO.HiFi.25.fastq.gz | samtools sort - -@ 4 --write-index -T $TMPDIR -o data/xO.HiFi.25.bam
+minimap2 -a -x map-hifi -t 4 data/ARS-UCD1.2.fa.gz data/OxO.HiFi.25.fastq.gz | samtools sort - -@ 4 --write-index -T $TMPDIR -o data/OxO.HiFi.25.bam
 ```
 
 Where we are piping the SAM output of minimap2 into samtools to directly create our BAM alignment file.
@@ -371,7 +371,7 @@ def parser(fname, names):
     data, memberships = [], []
     for line in open(fname):
         parts = line.split()
-        data.append(int(parts[0])/norm)
+        data.append(int(parts[0]))
         memberships.append([names[i] for i,j in enumerate(parts[1]) if int(j)])
     return memberships, data
 
