@@ -333,6 +333,19 @@ Part 2:
 ---
 
 [//]: # (Day 3: 8.30am – 10.30am)
+
+
+# Lecture 7
+
+Assessment of the pangenome
+
+Dr. Alexander Leonard  \
+ETH Zürich
+
+[alleonard@ethz.ch](alleonard@ethz.ch)
+
+---
+
 # Okay now for really
 
 Assessment of the pangenome:
@@ -351,6 +364,17 @@ Here we include a figure
 
 [//]: # (Day 3: 11.00am – 12.30am)
 
+# Lecture 8
+
+Assessment of the pangenome part 2
+
+Dr. Alexander Leonard  \
+ETH Zürich
+
+[alleonard@ethz.ch](alleonard@ethz.ch)
+
+---
+
 # Pangenome quality checking
 
 Quality check, error identification and correction of pangenomes
@@ -365,9 +389,9 @@ Not sure yet
 
 [//]: # (Day 5: 8.30am – 10.15am)
 
-# Lecture Z
+# Lecture 13
 
-Using the pangenome
+Finding associations within the pangenome
 
 Dr. Alexander Leonard  \
 ETH Zürich
@@ -379,6 +403,49 @@ ETH Zürich
 # Functional variant hunting examples in livestock
 
 Primarily lift over IGGSy examples
+
+---
+
+# Gaur deletion of *TAS2R46*
+
+Total deletion of two coding genes
+ - *TAS2R46*
+ - *OR6AA1*
+
+Easy to find as total overlap
+
+---
+
+# Wisent deletion of *THRSP*
+
+Partial deletion of gene (complete deletion of exon 1).
+Other exon is noncoding, so effectively a full knockout.
+Short reads support deletion (and ancestral reads).
+
+---
+
+# Some observations
+
+So far we've examined only deletions, why?
+ - Nonreference sequence is rarely annotated
+ - Coordinates for insertions are not helpful
+ - Duplications are also not obvious in graphs
+
+Can we find QTL outside of annotated elements
+
+---
+
+# More general approaches
+
+How to query graph
+
+---
+
+# White headed phenotype
+
+Jaccard metric slides x2-3
+
+Short read alignments (and issues)
 
 ---
 
