@@ -36,7 +36,7 @@ After we install `mamba`, we will create an environment (called *ognigenoma* ins
 curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
 bash Miniforge3-$(uname)-$(uname -m).sh
 
-mamba env create --file environment.yml
+mamba env create --file environment.yaml
 mamba activate ognigenoma
 ```
 
@@ -60,7 +60,7 @@ samtools faidx data/ARS-UCD1.2.fa.gz
 #Download the HiFi reads from Original Braunvieh cow with sample accession SAMEA7759028.
 #These are only from chromosome 25 for simplicity.
 
-https://polybox.ethz.ch/index.php/s/C7fEDiQoDweJKFU/download > data/OxO.HiFi.25.fq.gz
+curl https://polybox.ethz.ch/index.php/s/C7fEDiQoDweJKFU/download > data/OxO.HiFi.25.fq.gz
 
 #Download some pre-aligned short and ONT reads for the same animal and generate the csi index for it
 curl https://polybox.ethz.ch/index.php/s/OrFlXd0G54Ntx6n/download > data/OxO.Illumina.25.bam
@@ -73,7 +73,7 @@ samtools index -@ 2 -c data/OxO.ONT.25.bam
 
 Now we want to align the reads to the reference with minimap2
 ```
-minimap2 -a -x map-hifi -t 4 data/ARS-UCD1.2.fa.gz data/OxO.HiFi.25.fastq.gz | samtools sort - -@ 4 --write-index -T $TMPDIR -o data/OxO.HiFi.25.bam
+minimap2 -a -x map-hifi -t 4 data/ARS-UCD1.2.fa.gz data/OxO.HiFi.25.fq.gz | samtools sort - -@ 4 --write-index -T $TMPDIR -o data/OxO.HiFi.25.bam
 ```
 
 Where we are piping the SAM output of minimap2 into samtools to directly create our BAM alignment file.
@@ -108,8 +108,8 @@ This uses only the sequencing reads, so there currently is no _bias_ introduced 
 ```
 mkdir assemblies
 #there is an unresolved bug in mdbg that prevents reading gzipped fastq, so just need to extract it first
-gunzip -dc data/OxO.HiFi.25.fastq.gz > data/OxO.HiFi.25.fastq
-rust-mdbg -k 31 -l 24 --density 0.003 --bf --minabund 2 --prefix assemblies/OxO.HiFi.25.mdbg --threads 4 data/OxO.HiFi.25.fastq
+gunzip -dc data/OxO.HiFi.25.fq.gz > data/OxO.HiFi.25.fq
+rust-mdbg -k 31 -l 24 --density 0.003 --bf --minabund 2 --prefix assemblies/OxO.HiFi.25.mdbg --threads 4 data/OxO.HiFi.25.fq
 
 ## magic simplify?
 
@@ -175,7 +175,7 @@ We can also run `hifiasm`, a more resource-intensive assembler but likely to pro
 
 Let's build a hifiasm assembly and then we can repeat the quality assessment of the assembly.
 ```
-hifiasm -t 4 -o assemblies/OxO.HiFi.25.asm_hifiasm --primary data/OxO.HiFi.fastq.gz
+hifiasm -t 4 -o assemblies/OxO.HiFi.25.asm_hifiasm --primary data/OxO.HiFi.fq.gz
 gfatools gfa2fa assemblies/OxO.HiFi.25.asm_hifiasm.p_ctg.gfa > assemblies/OxO.HiFi.25.asm_hifiasm.fa
 ```
 
