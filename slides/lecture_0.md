@@ -94,6 +94,7 @@ Each may have their own strengths and weaknesses.
 # What is a "pangenome"?
 
 ![toy pangenome](img/BPC_diagram.svg)
+TODO: make sure this figure renders correctly
 
 ---
 

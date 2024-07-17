@@ -13,19 +13,28 @@ ETH Zürich
 
 # Recap
 
-Let's recap that lecture
-TODO: add recap about short read alignment?
+We have learned about:
+ - aligning short or long reads to pangenome graphs
+ - manipulating GAF files
+ - impracticalities of working with complex graphs
 
 ---
 
 # Objectives
 
-You should be able to
- - Find SV disrupted genes in a pangenome
- - TODO: check these
- - Identify possible QTL responsible for binary traits
+By the end of the lecture, we should be able to:
+ - prioritise interesting regions for manual inspection
+ - search pangenome graphs for disrupted genes
+ - identify putative QTL bubbles associated with binary traits
 
-TODO: add objectives
+---
+
+# Overview
+
+- "Functional" variants
+- Easy approaches
+- Hard approaches
+- Possible future directions
 
 ---
 
@@ -55,6 +64,8 @@ Some details might be simplified in the following examples.
 # Gaur deletion of *TAS2R46*
 
 Based on work from https://www.nature.com/articles/s41467-022-30680-2.
+
+Leonard et al. **Structural variant-based pangenome construction has low sensitivity to variability of haplotype-resolved bovine assemblies**. *Nature communications* (2022).
 
 Pangenome containing five cattle breeds (*B. t. taurus* and *B. t. indicus*) and one wild bovine (*Bos gaurus*).
 
@@ -86,9 +97,9 @@ We'll do this later in the practical session!
 
 BTA5 has a 17 Kb deletion unique to gaur that spans
  - *TAS2R46*
- - *OR6AA1*
+ - *ENSBTAG00000001336*
 
-TODO: add gaur pangenome images
+![gaur deletion](img/gaur_deletion.svg)
 
 Easy to find as total overlap
 
@@ -98,21 +109,39 @@ Easy to find as total overlap
 
 Based on https://link.springer.com/article/10.1186/s13059-023-02969-y.
 
-TODO: How did we find the VNTR in the graph?
+Leonard et al. **Graph construction method impacts variation representation and analyses in a bovine super-pangenome**. *Genome Biology* (2023).
 
+Pangenome containing seven *B. t. taurus*, two *B. t. indicus*, and three wild bovine (*Bos gaurus*, *Bos grunniens*, and *Bison bison*).
+
+Looking at VNTR (variable number tandem repeat) copy numbers in the graph.
 
 ---
 
 # eVNTR for *LOC112449094* in cattle
 
-TODO: How did we genotype it, and do the functional part
+Big outlier in copy number between non-cattle and cattle, worth following up.
 
+
+
+![VNTR genotyping](img/VNTR_copies.svg)
+
+We found within-breed variability in Braunvieh for which we had RNA-seq.
+
+---
+
+# eVNTR for *LOC112449094* in cattle
+
+We found a strong association for increased *LOC112449094* expression with additional VNTR copies.
+
+Can complete the story with allele-specific expression in the Nellore x Brown Swiss.
 
 ---
 
 # Wisent deletion of *THRSP*
 
 Based on the work in https://www.biorxiv.org/content/10.1101/2024.04.08.588592v1.
+
+Bortoluzzi et al. **Wisent genome assembly uncovers extended runs of homozygosity and a large deletion that inactivates the thyroid hormone responsive gene**. *Biorxiv* (2024).
 
 European (and American) Bison diverged ~1.5M years ago, and also have distinct habitats/adaptions.
 
@@ -159,6 +188,8 @@ Can we find QTL outside of annotated elements?
 # Functional nonreference sequence
 
 Based on the work in https://www.pnas.org/doi/abs/10.1073/pnas.2101056118.
+
+Crysnanto et al. **Novel functional sequences uncovered through a bovine multiassembly graph**. *PNAS* (2021).
 
 We can identify tens of megabases of nonreference sequence, but then what? \
 Since that sequence is *nonreference*, we likely have limited knowledge about it.
@@ -208,6 +239,8 @@ Linear equivalents to this question are:
 
 Based on the work in https://www.biorxiv.org/content/10.1101/2024.02.02.578587v1.
 
+Milia et al. **Taurine pangenome uncovers a segmental duplication upstream of KIT associated with depigmentation in white-headed cattle**. *Biorxiv* (2024).
+
 Let's use a simple and easy-to-record phenotype: head color.
 
 This trait is generally breed-defined as well.
@@ -255,13 +288,10 @@ We can also infer which samples cover (or don't) which paths through the bubble 
 
 # Summary
 
-Pangenomes are a powerful *tool* for exploring functionally relevant sequence.
-
-More annotated genomes (and more genomes containing functionally different sequence) will further empower these approaches.
-
-Short read sequencing is still incredibly useful **when** combined with a pangenome graph.
-
-Many of these methods are still "experimental" and rarely straightforward.
+ - Pangenomes are a powerful *tool* for exploring functionally relevant sequence.
+ - More annotated genomes (and more genomes containing functionally different sequence) will further empower these approaches.
+ - Short read sequencing is still incredibly useful **when** combined with a pangenome graph.
+ - Many of these methods are still "experimental" and rarely straightforward.
 
 ---
 

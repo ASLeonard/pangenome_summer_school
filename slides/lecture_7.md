@@ -13,7 +13,7 @@ ETH Zürich
 
 # Recap
 
-Let's recap that lecture
+Let's recap that lecture on visualisation
 TODO: add recap
 
 ---
@@ -38,6 +38,20 @@ paths
 
 Here we include a figure
 ![Figure](./bandage_issue.svg)
+
+---
+
+# Pangenome stuff
+
+Pangenome openness
+ - core
+ - shell
+ - cloud
+ - flexible
+ - dispensible
+
+ Specific to agriculture -> sometimes breeds have small pops, but many breeds?
+
 
 ---
 

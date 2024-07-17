@@ -39,9 +39,14 @@ vg autoindex -t 4--workflow giraffe -g pangenome/25.pggb.gfa -r "HER"  -p pangen
 chmod 444 pangenome/vg_index.dist
 ```
 
+We can extract the short reads from the original bam with
+```
+samtools collate -Ou data/OxO.Illumina.SR.bam | samtools fastq -N -o data/OxO.Illumina.fq.gz
+```
+
 And then run the giraffe mapping for short read samples, with the output in GAF.
 ```
-vg giraffe -t 4 -Z pangenome/vg_index.giraffe.gbz -m pangenome/vg_index.min -d pangenome/vg_index.dist --named-coordinates -o gaf --interleaved -f {input.reads} > pangenome/sample.gaf
+vg giraffe -t 4 -Z pangenome/vg_index.giraffe.gbz -m pangenome/vg_index.min -d pangenome/vg_index.dist --named-coordinates -o gaf --interleaved -f data/OxO.Illumina.fq.gz > pangenome/sample.gaf
 ```
 
 Note as well, running without `--named-coordinates` leads to very different output, as `vg` internally tends to work with "chopped up" graphs with 32bp nodes.
@@ -53,3 +58,23 @@ Check out some more discussion [here](https://github.com/vgteam/vg/issues/3996) 
 ### Quantifying the alignments
 
 There is not a great way to visualise these alignments unfortunately.
+
+We can count the number of mismatches from the alignments
+
+From the bam files
+```
+samtools view OxO.HiFi.bam | grep -oE "NM:i:\d+" | cut -d':' -f 3 | awk '{++n;c+=$1} END {print c,n}'
+```
+
+from the gaf files
+```
+grep -oE "NM:i:\d+" test.gaf | cut -d':' -f 3 | awk '{c+=$1;++n} END {print c,n}'
+```
+
+Some reads align in many parts. \
+We can find the top 10 reads with
+```
+cut -f 1 test.gaf | sort | uniq -c | sort -k1,1nr | head
+```
+
+And then explore where in the graph they map, what does it look like?

@@ -1,4 +1,3 @@
-
 [//]: # (Day 3: 11.00am – 12.30am)
 
 # Lecture 8
@@ -33,7 +32,7 @@ Quality check, error identification and correction of pangenomes
 
 # What makes a good pangenome?
 
-Not sure yet
+We aren't sure yet
 
 ---
 
