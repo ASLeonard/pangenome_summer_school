@@ -11,6 +11,15 @@ ETH Zürich
 
 ---
 
+# Caveat emptor
+
+There are not any pangenome "curriculums". \
+These are ideas *we think* are useful to help apply pangenomics to your own research.
+
+Get involved and discuss any questions or ideas of your own!
+
+---
+
 # Objectives
 
 By the end of the lecture, we should be able to:
@@ -170,7 +179,7 @@ The easiest metric has the hardest definition:
 
 Basically, are the chromosomes mostly in one piece each.
 
-TODO: NGx plot
+![NGx](img/N50.svg)
 
 ---
 
@@ -209,7 +218,9 @@ We again can make use of *k*-mers from short read sequencing.
 
 Assembly *k*-mers not found in the sequencing are more confidently errors.
 
-TODO: merqury plot
+Assembly *k*-mers found too often or not often enough are potential false collapses/duplications.
+
+![k-mer spectrum](img/kmer_spectrum.svg)
 
 ---
 
@@ -263,73 +274,15 @@ Ideally some happy intermediate between nucleotide-level and redundant sequence.
 
 # Pangenome terminology
 
-**Pangenome**: A collection of assemblies
+**Pangenome**: a collection of assemblies
+
+**Graph**: a type of pangenome representation with nodes and edges
 
 **Nodes**: some sequence
 
 **Edges**: connection between contiguous sequences
 
 **Bubbles**: regions of variation
-
----
-
-# Pangenomes
-
-TODO: we focus on graph/sequence pangenoems
-Overview on
- - pangenome types
-
- TODO: Create pangenome from VCF (but all the biases remain)
-
----
-
-# Building pangenomes — tools
-
-Several types:
- - minigraph (https://github.com/lh3/minigraph)
- - cactus (https://github.com/ComparativeGenomicsToolkit/cactus)
- - pggb (https://github.com/pangenome/pggb)
- - pgr-tk (https://github.com/cschin/pgr-tk)
-
-Some specialised types:
- - pangene (https://github.com/lh3/pangene)
-
----
-
-# Building pangenomes — tools
-
-|             | Structural variation | Small variation | Reference-based | N+1      | Compute needed |
-|-------------|:--------------------:|:---------------:|:---------------:|:--------:|:--------------:|
-| `minigraph` | Yes                  | No              | Yes             | Easy     | Laptop         |
-| `cactus`    | Yes                  | Yes             | No-ish          | Easy-ish | Cluster        |
-| `pggb`      | Yes                  | Yes             | No              | Rebuild  | Big cluster    |
-
----
-
-# Building pangenomes — steps
-
-Some form of alignment
-
-Some form of collapsing homology
-
----
-
-# Building bigger pangenomes
-
-How do these problems scale?
-
-What will be bottlenecks in the near future?
-
----
-
-# Pangenomes
-
-Overview on
- - pangenome types
- - pros/cons
- - different pipelines for "variation graphs"
-
- TODO: add somethign about L+V = size
 
 ---
 
@@ -392,6 +345,76 @@ Similar to SAM/BAM, broadly capturing:
  - and how good it was
 
  Likewise, this is human-readable, and so some tools prefer the binary version `.gam`.
+
+---
+
+# Pangenomes
+
+TODO: we focus on graph/sequence pangenoems
+Overview on
+ - pangenome types
+
+ TODO: Create pangenome from VCF (but all the biases remain)
+
+---
+
+# Building pangenomes — tools
+
+Several types:
+ - minigraph (https://github.com/lh3/minigraph)
+ - cactus (https://github.com/ComparativeGenomicsToolkit/cactus)
+ - pggb (https://github.com/pangenome/pggb)
+ - pgr-tk (https://github.com/cschin/pgr-tk)
+
+Some specialised types:
+ - pangene (https://github.com/lh3/pangene)
+
+---
+
+# Building pangenomes — tools
+
+|             | Structural variation | Small variation | Reference-based | N+1      | Compute needed |
+|-------------|:--------------------:|:---------------:|:---------------:|:--------:|:--------------:|
+| `minigraph` | Yes                  | No              | Yes             | Easy     | Laptop         |
+| `cactus`    | Yes                  | Yes             | No-ish          | Easy-ish | Cluster        |
+| `pggb`      | Yes                  | Yes             | No              | Rebuild  | Big cluster    |
+
+---
+
+ # Building pangenomes — tools
+
+`pggb` is lossless, so is cactus?
+
+Can perfectly reconstruct any assembly from the graph, this is not true for minigraph.
+
+---
+
+# Building pangenomes — steps
+
+Some form of alignment
+
+Some form of collapsing homology
+
+---
+
+# Building bigger pangenomes
+
+N+1 problem is a big problem
+
+How do these problems scale for compute resources?
+
+What will be bottlenecks in the near future?
+
+---
+
+# Pangenomes
+
+Overview on
+ - pangenome types
+ - pros/cons
+ - different pipelines for "variation graphs"
+
+
 
 ---
 

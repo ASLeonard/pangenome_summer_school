@@ -126,6 +126,8 @@ Beyond view graphs, we can use Bandage for:
 
 # Using `Bandage` interactively
 
+Let's explore `Bandage` a bit.
+
 [//]: # (Some interactive examples)
 
 ---
@@ -194,6 +196,14 @@ How do we interpret the links (graph topology)?
 
 # `odgi` visualisations
 
+We can also plot a "compressed" mode, and see which regions are variable.
+
+TODO: add compressed plot
+
+---
+
+# `odgi` visualisations
+
 There are many additional layers of information we can use:
  - inversions
  - traversal depth
@@ -202,15 +212,12 @@ There are many additional layers of information we can use:
 We can also plot a "compressed" mode, and see which regions are variable.
 
 TODO: color by depth
-TODO: expand a bit more with inject etc?
 
 ---
 
 # `odgi` visualisations
 
-We can also plot a "compressed" mode, and see which regions are variable.
-
-TODO: add compressed plot
+TODO: expand a bit more with inject etc?
 
 ---
 

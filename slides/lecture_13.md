@@ -133,6 +133,8 @@ We found within-breed variability in Braunvieh for which we had RNA-seq.
 
 We found a strong association for increased *LOC112449094* expression with additional VNTR copies.
 
+![eVNTR](img/eVNTR.svg)
+
 Can complete the story with allele-specific expression in the Nellore x Brown Swiss.
 
 ---
@@ -180,7 +182,6 @@ So far we've mostly examined only deletions, why?
  - coordinates for insertions are not helpful
  - duplications/inversions are also not always obvious in graphs
 
-
 Can we find QTL outside of annotated elements?
 
 ---
@@ -198,7 +199,6 @@ Unmapped reads now can align to the reference, so we can locally assembly a nonr
 These putative genes can show differential expression, indicating potential functional consequences.
 
 TODO: add image
-
 
 ---
 
@@ -307,3 +307,9 @@ Goals of this afternoon:
 # Questions?
 
 And then coffee
+
+---
+
+# Miscellaneous topics
+
+`vg surject` -> never touch a GFA
