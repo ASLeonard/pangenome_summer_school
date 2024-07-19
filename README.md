@@ -17,4 +17,5 @@ Some lecture notes for
 Some associated exercises for
  - [Hands on pangenome assembly of a chromosome](practicals/day2_afternoon.md)
  - [Identification of small and structural variants](practicals/day3_afternoon.md)
+ - [Aligning sequencing reads to a pangenome](practicals/day4_morning.md)
  - [Using a pangenome to identify a known functional variant](practicals/day5_afternoon.md)

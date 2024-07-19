@@ -3,6 +3,7 @@
 # Lecture 8
 
 Assessment of the pangenome part 2
+TODO: Working with pangenomes?
 
 Dr. Alexander Leonard  \
 ETH Zürich

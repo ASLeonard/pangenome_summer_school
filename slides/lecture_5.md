@@ -1,14 +1,13 @@
-[//]: # (Day 2: 8.30am – 10.30am)
-
-# Lecture 5
-
-Genome assembly and pangenome graphs
-
-Dr. Alexander Leonard  \
-ETH Zürich
-
-[alleonard@ethz.ch](alleonard@ethz.ch)
-
+---
+# (Day 2: 8.30am – 10.30am)
+title: Genome assembly and pangenome graphs
+author: Alexander Leonard
+institute: ETH Zürich
+date: Day 2
+output:
+  beamer_presentation:
+    theme: "Boadilla"
+    keep_tex: true  
 ---
 
 # Caveat emptor
@@ -71,7 +70,7 @@ We need to *reassemble* all the reads to reconstruct the original genome sequenc
 
 Consider the simple case
 
-```
+```ruby
 TTAGGCAA  
     GCAAGTCCCA  
          TCCCATTAA
@@ -86,7 +85,7 @@ We call this a **contig** (refering to a **contig**uous region of the genome).
 
 However, one possible type of issue
 
-```
+```ruby
 TTAGGCAA  
     GCAAGTCATCAT  
              CATCATCATCCC  
@@ -102,7 +101,7 @@ It is already ambiguous which read (the 3rd or 4th) is better, and so we have to
 Many genomes are unfortunately full of complex repeats that even with *perfect* reads cannot be resolved.
 Now, we add in sequencing errors and assembly gets even harder.
 
-```
+```ruby
 TTAGGCAA  
     GCAAGTCCCA  
          TCACATTAA
@@ -302,6 +301,7 @@ New file formats!
 
 **GFA**: Graphical Fragment assembly \
 Three main components:
+
  - S-lines: the sequence of the nodes
  - L-lines: how the graph is connected with edges
  - P-lines: how a "sample" traverses the graph (*optional*)
@@ -361,12 +361,14 @@ Overview on
 # Building pangenomes — tools
 
 Several types:
+
  - minigraph (https://github.com/lh3/minigraph)
  - cactus (https://github.com/ComparativeGenomicsToolkit/cactus)
  - pggb (https://github.com/pangenome/pggb)
  - pgr-tk (https://github.com/cschin/pgr-tk)
 
 Some specialised types:
+
  - pangene (https://github.com/lh3/pangene)
 
 ---

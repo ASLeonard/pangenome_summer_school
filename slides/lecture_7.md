@@ -27,16 +27,17 @@ We have practiced:
 # Objectives
 
 By the end of the lecture, we should be able to:
- - assess if a pangenome is good
  - determine the core and accessory components of a pangenome
- - TODO
+ - use basic metrics to check if our pangenome is reasonable
+ - understand how we can check the content of pangenomes is accurate
 
 ---
 
 # Overview
 
-- A
-- B
+- How do pangenomes grow with more samples
+- Pangenome graph statistics
+- Advanced graph assessments
 
 ---
 
@@ -45,7 +46,7 @@ By the end of the lecture, we should be able to:
 **I**nternational **G**raph **G**enome **Sy**mposium (IGGSy) 2024:
 > We aren't sure yet.
 
-No real "panalogues" to N50, QV, USCOs, etc., because we have *nice theory* with *real biology*.
+No real "panalogues" to N50, QV, USCOs, etc., because we have mixed **real biology** into our metrics.
 
 ---
 
@@ -53,11 +54,10 @@ No real "panalogues" to N50, QV, USCOs, etc., because we have *nice theory* with
 
 Fundementally, a useful graph is a good graph.
 
-George Box?
-> All models are wrong, but some are useful
+As George Box said:
+> All models are *wrong*, but some are *useful*
 
-TODO: check quote
-TODO: purpose of pangenoems (refrence vs analysis)
+TODO: where does this go purpose of pangenoems (refrence vs analysis)
 
 ---
 
@@ -219,6 +219,7 @@ Should be *reasonable* (how many bases do you expect before a SNP?).
 Similar to core/shell segments, we expect most nodes to be Okay
 
 TODO: be sure to mentioning pggb/cactus may have nodes we expect > high coverage etc.
+TODO: centromere are outlier nodes in depth/size
 
 different graph models (covering nodes multiple times, loops?)
 
@@ -228,6 +229,8 @@ different graph models (covering nodes multiple times, loops?)
 
 We can find big outliers.
 `awk '$1=="S"&&length($3)>1000000 {print $2}' <graph.gfa>`
+
+TODO: or centomere here?
 
 ---
 
@@ -300,11 +303,12 @@ Can also check known regions match expectations
 
 # Not all problems need to be solved
 
+*Plenty* of linear references have *plenty* of issues.
 
+In ARS-UCD1.2, several telomeres are near, not at the end, of chromosomes.
 
-We have plenty of issues with linear reference
-
-TODO: expand
+As Voltaire wrote:
+> Il meglio è l'inimico del bene
 
 ---
 
