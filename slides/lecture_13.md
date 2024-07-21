@@ -1,14 +1,13 @@
-[//]: # (Day 5: 8.30am – 10.15am)
-
-# Lecture 13
-
-Finding functional associations within livestock pangenomes
-
-Dr. Alexander Leonard  \
-ETH Zürich
-
-[alleonard@ethz.ch](alleonard@ethz.ch)
-
+---
+# (Day 5: 8.30am – 10.15am)
+title: Functional associations in livestock pangenomes
+author: Alexander Leonard
+institute: ETH Zürich
+date: Day 5
+output:
+  beamer_presentation:
+    theme: Boadilla
+    keep_tex: true  
 ---
 
 # Recap
@@ -257,9 +256,9 @@ We now need to "scan" the pangenome to find potential QTL. \
 But how do we scan?
 
 Broadly, we want to find where in the graph
- - W=W
- - C=C
- - W≠C
+ - W~W
+ - C~C
+ - W!~C
 
 Looking for segregating nodes (sequence) is a start.
 
@@ -307,9 +306,3 @@ Goals of this afternoon:
 # Questions?
 
 And then coffee
-
----
-
-# Miscellaneous topics
-
-`vg surject` -> never touch a GFA

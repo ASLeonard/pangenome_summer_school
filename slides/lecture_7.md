@@ -1,23 +1,24 @@
-[//]: # (Day 3: 8.30am – 10.30am)
-
-# Lecture 7
-
-Assessment of the pangenome
-
-Dr. Alexander Leonard  \
-ETH Zürich
-
-[alleonard@ethz.ch](alleonard@ethz.ch)
-
+---
+# (Day 3: 8.30am – 10.30am)
+title: Assessment of the pangenome
+author: Alexander Leonard
+institute: ETH Zürich
+date: Day 3
+output:
+  beamer_presentation:
+    theme: Boadilla
+    keep_tex: true  
 ---
 
 # Recap
 
 We have learned about:
+
  - interactively visualising graph bubbles
  - statically visualising entire GFA files
 
 We have practiced:
+
  - assembling a cattle chromosome from HiFi data
  - building a chromosomal graph with minigraph
  - exploring pangenomes and regions of interest
@@ -44,20 +45,26 @@ By the end of the lecture, we should be able to:
 # What makes a good pangenome graph?
 
 **I**nternational **G**raph **G**enome **Sy**mposium (IGGSy) 2024:
+
+. . .
+
 > We aren't sure yet.
 
-No real "panalogues" to N50, QV, USCOs, etc., because we have mixed **real biology** into our metrics.
+. . .
+
+No real *"panalogues"* to N50, QV, USCOs, etc., because we have mixed **real biology** into our metrics.
 
 ---
 
 # What makes a pangenome graph good?
 
-Fundementally, a useful graph is a good graph.
-
 As George Box said:
-> All models are *wrong*, but some are *useful*
 
-TODO: where does this go purpose of pangenoems (refrence vs analysis)
+> All models are *wrong*, but some are *useful*.
+
+. . .
+
+Fundamentally, a good graph is a useful graph: we can answer our question?
 
 ---
 
@@ -67,6 +74,8 @@ What happens when we add more samples an analysis?
 
 With joint-genotyping in variant calling, we expect an asymptotic approach.
 
+. . .
+
 What do we expect for our pangenome?
 
 ---
@@ -74,14 +83,18 @@ What do we expect for our pangenome?
 # Pangenome openness
 
 Consider something like Heap's law:
+
 > describes the number of distinct words in a document as a function of the document length
 
 $$N \propto n^{-\alpha}$$
 
 where:
+
  - N is approximately the number of gene families
  - n is the number of input genomes
  - $\alpha$ is the important constant
+
+. . .
 
 If $\alpha > 1$, the pangenome is **closed**, otherwise if $\alpha \leq 1$, the pangenome is **open**.
 
@@ -90,10 +103,12 @@ If $\alpha > 1$, the pangenome is **closed**, otherwise if $\alpha \leq 1$, the 
 # Pangenome openness
 
 What happens if we add a duplicate sample to the pangenome? \
-No new sequence is added, so $\alpha=\infty$ and the pangenome is closed.
+No new sequence is added, so $\alpha=\infty$ and the pangenome is **closed**.
+
+. . .
 
 What happens if we add a totally unrelated sample to the pangenome? \
-Only new sequence is added, so $\alpha=0$ and the pangenome is open.
+Only new sequence is added, so $\alpha=0$ and the pangenome is **open**.
 
 ---
 
@@ -101,9 +116,15 @@ Only new sequence is added, so $\alpha=0$ and the pangenome is open.
 
 We want enough samples to confidently *estimate* open/closedness.
 
+. . .
+
 Agriculture pangenomes may behave differently:
+
  - small effective population sizes per breed/line
  - many distinct breeds/lines per species
+ - many closely related species
+
+. . .
 
 We might get "bumps" in the distribution when adding distinct samples.
 
@@ -115,6 +136,7 @@ Pangenome openness effectively addess the total unique sequence. \
 What about different levels of intersection?
 
 We can characterize pangenome *segments* as:
+
  - **core**: present in all/most samples
  - **shell**: present in at least two samples
  - **cloud**: present in only one sample
@@ -130,6 +152,7 @@ Eventually, this will just be ultraconserved elements.
 Misassemblies might erroneously "demote" core segments to shell, or introduce cloud segments.
 
 We can use this as a sanity check
+
  - critical genes should be core
  - similar samples should not have too much private variation
 
@@ -151,11 +174,18 @@ But all of these cases can highlight areas worth exploring.
 # Pangenome layers
 
 There are several options available:
+
  - `Panacus` (https://github.com/marschall-lab/panacus)
  - `odgi heaps`
  - `gretl` (https://github.com/MoinSebi/gretl)
 
 TODO: add figs?
+
+---
+
+# A quick break
+
+And then quantifying graph statistics!
 
 ---
 
@@ -185,6 +215,7 @@ The total pangenome size should *approximately* be equal to the reference plus a
 There are a lot of technical considerations like how much sequence should two large but similar alleles add?
 
 Useful to get an order of magnitude guess:
+
  - 50 Mb reference and 20 similar assemblies → 55 Mb pangenome seems reasonable
  - 50 Mb reference and 5 diverged assemblies → 60 Mb pangenome seems reasonable
  - 50 Mb reference and 5 diverged assemblies → 150 Mb pangenome surely is underaligned?
@@ -242,6 +273,7 @@ We can realign the assemblies to the pangenome. \
 Every node associated with **that assembly path** should be spanned.
 
 From Liao et al. **A draft human pangenome reference**. *Nature* (2023):
+
 >More than 94% of on-target edges were supported ... only 7% or fewer off-target edges were supported.
 
 ---
@@ -249,6 +281,7 @@ From Liao et al. **A draft human pangenome reference**. *Nature* (2023):
 # Realignment of assemblies
 
 If not, why not?
+
  - graph error: underaligned/collapsed region of homology
  - aligner error: nested bubbles are tricky to align to (but could that be a graph error?)
 
@@ -280,16 +313,10 @@ Giant nodes may contribute to huge structural variants that are unlikely to be b
 Ultimately, *seeing is believing*.
 
 Pick a few random regions and just play around
+
  - are there similar sized nodes on different arms of a bubble?
  - are there "tightly braided" bubbles?
  - are all paths present and make sense?
-
----
-
-
-# Okay now for really (TODO: delete)
-
-Layering information into visualisation
 
 ---
 
@@ -297,7 +324,9 @@ Layering information into visualisation
 
 In particular, check the region you care about!
 
-Can also check known regions match expectations
+. . .
+
+Can also check if *known* regions match expectations.
 
 ---
 
@@ -305,21 +334,29 @@ Can also check known regions match expectations
 
 *Plenty* of linear references have *plenty* of issues.
 
-In ARS-UCD1.2, several telomeres are near, not at the end, of chromosomes.
+In ARS-UCD1.2, several telomeres are *near*, not at the *end*, of chromosomes.
+
+. . .
 
 As Voltaire wrote:
-> Il meglio è l'inimico del bene
+
+> Il meglio è l'inimico del bene \
+"Perfect is the enemy of good"
 
 ---
 
 # Summary
 
-TODO: add summary
+. . .
+
+:::incremental:::
+ - There are no reliable pangenomic assessment metrics (yet)
+ - Inspecting the graph structure *around* your region of interest is critical
+ - Even a suboptimal pangenome graph may be better than a linear reference
+:::
 
 ---
 
 # Questions?
 
-And then ☕
-
----
+And then coffee

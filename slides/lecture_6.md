@@ -1,19 +1,19 @@
-[//]: # (Day 2: 11.00am – 12.30pm)
-
-# Lecture 6
-
-Pangenome Visualisation
-
-Dr. Alexander Leonard  \
-ETH Zürich
-
-[alleonard@ethz.ch](alleonard@ethz.ch)
-
+---
+# (Day 2: 11.00am – 12.30pm)
+title: Pangenome visualisation
+author: Alexander Leonard
+institute: ETH Zürich
+date: Day 2
+output:
+  beamer_presentation:
+    theme: Boadilla
+    keep_tex: true  
 ---
 
 # Recap
 
 We have learned about:
+
  - how accurate long reads have reshaped genome assembly
  - pangenomes are a natural step to encapsulating all the new genomes
  - There is no "one true pangenome", but each has their own strengths
@@ -23,9 +23,18 @@ We have learned about:
 # Objectives
 
 By the end of the lecture, we should be able to:
+
  - create figures of pangenomic bubbles
  - interactively explore pangenomes with different layers of data
  - identify large-scale homology between pangenome assemblies
+
+---
+
+# Overview
+
+ - local-scale visualisations
+ - global-scale visualisations
+ - layering visualisations with additional data
 
 ---
 
@@ -40,9 +49,12 @@ What types of genomic data do we normally try and visualise?
 # Visualising genomic data
 
 IGV (**Integrative Genomics Viewer**) is a useful tool for visualising different formats of genomic data:
+
  - read alignments
  - bed files
  - gene annotations
+
+. . .
 
 *Seeing* the data can often influence later analyses. \
 Too many/few reads where we expect them, overlap of variants and complex annotations, etc.
@@ -51,29 +63,36 @@ Too many/few reads where we expect them, overlap of variants and complex annotat
 
 # Visualising genomic data
 
-TODO: add IGV screenshot with data
+
+![IGV example](img/igv_snapshot.png){ width=100% }
 
 ---
 
 # Visualising genomic data
 
 There are many other ways to visualise genomic data, such as:
+
  - JBrowse
  - Ribbon
  - USCS Genome Browser
+
+. . .
+
+Is there a pangenomic equivalent?
 
 ---
 
 # Visualising pangenomic data
 
-Is there a pangenomic equivalent?
-
 **Sadly, not really...** \
 Everything is more complicated in the pangenomic world.
 
-But it depends what are we interested in.
- - Viewing relationship between many assemblies ✓
- - Viewing alignments/annotations on pangenome graphs ✖
+. . .
+
+But it depends what are we interested in:
+
+ - viewing relationship between many assemblies?
+ - viewing alignments/annotations on pangenome graphs?
 
 ---
 
@@ -83,6 +102,7 @@ How do we visualise the *GFA* output of pangenome construction?
 
 One of the most common tools is `Bandage` (https://github.com/asl/BandageNG). \
 It has several advantages:
+
  - easy to install
  - quick to load small-moderate graphs
  - lots of extra functionality
@@ -93,34 +113,33 @@ It has several advantages:
 
 A relatively easy example of a minigraph bubble.
 
-TODO: add image
+![minigraph example](img/minigraph.svg){ width=80% }
 
 ---
 
 # `Bandage` visualisations
 
-A moderate example of a pggb region.
+A not-so-easy example of that region in cactus.
 
-TODO: add image
+![cactus example](img/cactus.png){ width=80% }
 
 ---
 
 # `Bandage` visualisations
 
-A complex example of a pggb tangle.
+A hard example of that region in pggb.
 
-TODO: add image
+![pggb example](img/pggb.png){ width=80% }
 
 ---
 
 # Using `Bandage` interactively
 
 Beyond view graphs, we can use Bandage for:
+
  - searching for sequence hits (`blastn`, `minimap2`, etc.)
  - annotating paths
  - loading BED files
-
- TODO: expand this into multiple slides
 
 ---
 
@@ -134,30 +153,41 @@ Let's explore `Bandage` a bit.
 
 # Beyond bubbles
 
-Bandage is a powerful tool for working on a *local* scale. \
+Bandage is a powerful tool for working on a *local* scale.
+
 How can we look at pangenomes (and the relationships between assemblies) on a *global* scale?
-
-Something like synteny Circos plots?
-
----
-
-# Beyond bubbles
-
-TODO: add circos image
 
 ---
 
 # Pangenomic synteny
 
-We can easily construct "multi-assembly" synteny plots, but are they helpful?
+Synteny Circos plot *can* be an informative way to compare assemblies.
 
-TODO: add wisent synteny plot
+. . .
+
+![cicros plot](img/circos.png){ width=50% }
+
+---
+
+# Pangenomic synteny
+
+We can easily construct "multi-assembly" synteny plots.
+
+. . .
+
+![cicros plot](img/wisent_multisynteny.png){ width=50% }
+
+. . .
+
+But are they helpful?
 
 ---
 
 # Pangenomic synteny
 
 Many one-to-one alignments is **not** the same as many-to-many alignments.
+
+. . .
 
 Very easy to misinterpret or even miss key relationships. \
 But, this can be a helpful *stepping stone* to transition to pangenomic concepts.
@@ -169,6 +199,12 @@ But, this can be a helpful *stepping stone* to transition to pangenomic concepts
 Viewing too much information can be just as unhelpful as viewing too little.
 
 TODO: All vs all paf plot
+
+---
+
+# A quick break
+
+And then more `odgi`!
 
 ---
 
@@ -189,7 +225,7 @@ This bins the pangenome and produces a linear, static visualisation of the graph
 
 TODO: wisent example for viz?
 
-Nodes are "ordered" left to right, but what does that mean?
+Nodes are "ordered" left to right, but what does that mean? \
 How do we interpret the links (graph topology)?
 
 ---
@@ -205,35 +241,51 @@ TODO: add compressed plot
 # `odgi` visualisations
 
 There are many additional layers of information we can use:
+
  - inversions
  - traversal depth
- - any `odgi inject` BED files
-
-We can also plot a "compressed" mode, and see which regions are variable.
-
-TODO: color by depth
+ - any annotations from BED files?
 
 ---
 
-# `odgi` visualisations
+# `odgi inject`
 
-TODO: expand a bit more with inject etc?
+We can "inject" an annotation from **any** assembly into the pangenome.
+
+![cicros plot](img/odgi_inject.svg){ width=95% }
+
+. . .
+
+Let the pangenome do the hard work for dealing with pangenome coordinates!
 
 ---
 
-# Other pangenome visualisers
+# `odgi untangle`
 
-Visualisation of a pangenome
-Want to see broad synteny (odgi viz)
-Want to see specific loci (bandage)
+We can also "untangle" a graph bubble locally. \
+Easier to see copy number variation or gene structure.
 
-Hint at many other tools
- - Waragraph (and earlier gfaestus; depends on odgi layout)
- - sequenceTubeMap
- - Panache
- - Panagram
+. . .
 
-Many other "Pan" puns at https://github.com/colindaven/awesome-pangenomes.
+![cicros plot](img/odgi_untangle.svg){ width=50% }
+
+---
+
+# So linear visualisations in the end?
+
+Pangenomes are efficient data structures.
+
+. . .
+
+Pangenomes can be efficient visualiation structures.
+
+. . .
+
+Linear sequence context will *always* make more sense.
+
+. . .
+
+These plots still use pangenomics before the final image.
 
 ---
 
@@ -242,34 +294,57 @@ Many other "Pan" puns at https://github.com/colindaven/awesome-pangenomes.
 These tools are also likely best used in combination, so we can understand the graph at different scales.
 
 Adapted from https://www.annualreviews.org/content/journals/10.1146/annurev-genom-120219-080406
+
+Want to see broad synteny (odgi viz)
+Want to see specific loci (bandage)
 TODO: adapt this
+
+---
+
+# Other pangenome visualisers
+
+There are many other tools:
+
+ - Waragraph (and earlier gfaestus; depends on odgi layout)
+ - sequenceTubeMap from `vg`
+ - Panache
+ - Panagram
+
+. . .
+
+And even more "Pan" puns at https://github.com/colindaven/awesome-pangenomes.
 
 ---
 
 # Summary
 
-- Visualising your data is **critical**, even more so for pangenomes! TODO: probably add an example for this.
-- `Bandage` is powerful for interactively exploring "local" regions.
-  - Increasing graph complexity will be *impossible* to responsively display.
-- `odgi` is powerful for statically visualising entire graphs.
+. . .
+
+:::incremental
+ - Visualising your data is **critical**, even more so for pangenomes!
+ - `Bandage` is powerful for interactively exploring "local" regions.
+   - Increasing graph complexity will be *impossible* to responsively display.
+ - `odgi` is powerful for statically visualising entire graphs.
+:::
 
 ---
 
 # Practical: Hands on pangenome assembly of a chromosome.
 
-Goals of this afternoon. \
+Goals of this afternoon.
+
 **Part 1:**
- - Assemble an entire chromosome from long reads
- - Build a chromosome pangenome from six assemblies
+
+ - assemble an entire chromosome from long reads
+ - build a chromosome pangenome from six assemblies
 
 **Part 2:**
- - Visually explore minigraph and pggb pangenomes
- - Examine sequences and annotated features in pangenomes
+
+ - visually explore minigraph and pggb pangenomes
+ - examine sequences and annotated features in pangenomes
 
  ---
 
 # Questions?
 
-And then 🍽️
-
----
+And then coffee

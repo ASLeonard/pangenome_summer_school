@@ -1,25 +1,14 @@
 ---
-title: 'Introduction to pangenomics'
-author: "AS Leonard"
-date: "Day 1"
+# (Day 1: 8.30am - 9.15am)
+title: Introduction to pangenomics
+author: Alexander Leonard
+institute: ETH Zürich
+date: Day 1
 output:
   beamer_presentation:
     theme: "Boadilla"
     keep_tex: true
 ---
-
-# Lecture 0
-
-Introduction to pangenomics
-
-Dr. Alexander Leonard  \
-ETH Zürich
-
-[alleonard@ethz.ch](alleonard@ethz.ch)
-
----
-
-[//]: # (Day 1: 8.30am - 9.15am)
 
 # What is a "genome"?
 
@@ -27,11 +16,13 @@ The definition of **genome** from [genome.gov](https://www.genome.gov/genetics-g
 
 > the entire set of DNA instructions found in a cell.
 
-For us, that is approximately 3,000,000,000 A/T/C/G nucleotides.
+For us, that is approximately 3,000,000,000 A/T/C/G nucleotide bases.
 
-Chromosome 1 looks like
+Chromosome 1 of CHM13v2.0 looks like
 
-> CACCTAAACCCTAACCCCTAACCCTAACCCT...GGTTAGGGTTAGGGTTAGGGTTAGGGTTAGGGTT
+> CACCTAAACCCTAACCCCTAACCCTAACCCTAAC \
+... \
+GGTTAGGGTTAGGGTTAGGGTTAGGGTTAGGGTT
 
 ---
 
@@ -39,14 +30,18 @@ Chromosome 1 looks like
 
 The human reference genome was assembled in 2001
 
- - International Human Genome Consortium. **Initial sequencing and analysis of the human genome**. *Nature*
- - Venter et al. **The sequence of the human genome**. *Science*
+ - International Human Genome Consortium. **Initial sequencing and analysis of the human genome**. *Nature* (2021).
+ - Venter et al. **The sequence of the human genome**. *Science* (2021).
 
-The human reference genome was actually completed in 2022. \
-Nurk et al. **The complete sequence of a human genome**. *Science*
+. . .
+
+The human reference genome was actually completed much later. \
+Nurk et al. **The complete sequence of a human genome**. *Science* (2022).
+
+. . .
 
 Even that version has "limitations", including no Y chromosome! \
-Rhie et al. **The complete sequence of a human Y chromosome**. *Nature*
+Rhie et al. **The complete sequence of a human Y chromosome**. *Nature* (2023).
 
  ---
 
@@ -57,6 +52,8 @@ What is the point of a reference genome?
 The definition of **reference sequence** from [genome.gov](https://www.genome.gov/genetics-glossary/Human-Genome-Reference-Sequence) is
 
 >an accepted representation ... that is used by researchers as a standard for comparison to DNA sequences generated in their studies.
+
+. . .
 
 So a reference is a "good enough" framework for us to consistently refer to the same genomic sequence.
 
@@ -76,6 +73,8 @@ The CHM13 genome represents *one* person, not all of us.
 
 What about my genome?
 
+. . .
+
 What about my ~~genome~~ genome**s**?
 
 ---
@@ -84,22 +83,32 @@ What about my ~~genome~~ genome**s**?
 
 Pangenomes are one solution to this problem of representing many genomes, or more formally [put](https://lh3.github.io/2024/03/29/what-is-a-pangenome) is
 
->a collection of well assembled genomes in a clade (typically a species) to be analyzed together.
+>a collection of well assembled genomes in a clade (typically a species) to be analysed together.
 
 Historically, pangenomes were used primarily in bacteria — many E. coli genomes only share ~50% of genes, so the "set" of genes was the "pangenome".
-
-Now we might refer to a collection of *many* genomes as a pangenome.
 
 ---
 
 # What is a "pangenome"?
 
-In reality there are many types of pangenomes:
+Now we might refer to a collection of *many* genomes as a pangenome.
+
+. . .
+
+Species pangenomes, genus pangenomes (**super**pangenome), etc.
+
+---
+
+# What is a "pangenome"?
+
+In reality there are many underlying types of pangenomes:
 
  - variation-based
- - sequence-based
+ - **sequence-based**
  - gene-based
  - *k*mer-based
+
+. . .
 
 As a young field, no one definition has won yet. \
 Each may have their own strengths and weaknesses.
@@ -109,6 +118,10 @@ Each may have their own strengths and weaknesses.
 # What is a "pangenome"?
 
 ![BPC diagram](img/BPC_diagram.svg){ width=85% }
+
+. . .
+
+At least a "sequence graph pangenome".
 
 ---
 
@@ -120,10 +133,17 @@ We want to mitigate **reference bias**, which is
 
 This is especially relevant to agriculture, where "the same species" can be highly diverse.
 
-Consider what happens if our sample is diverged (either in one region or the whole genome) compared to the reference. \
-Genomics mutations/sequencing errors make aligners second-guess themselves...
+. . .
+
+Consider what happens if our sample is diverged (either in one region or the whole genome) compared to the reference.
+
+---
+
+# Why use a pangenome?
 
 ![reference bias in alignment](img/reference_bias.svg){ width=65% }
+
+Genomics mutations/sequencing errors make aligners second-guess themselves...
 
 ---
 
@@ -132,8 +152,8 @@ Genomics mutations/sequencing errors make aligners second-guess themselves...
 Pangenomes may seem like an obvious solution, but
 
  - assemblies *were* extremely expensive/hard to produce
- - computational power/algorithms were not sufficiently advanced
- - the scale of diversity (in humans at least) was underestimated
+ - computational power/algorithms *were not* sufficiently advanced
+ - the scale of diversity (in humans at least) *was* underestimated
 
 ---
 
@@ -145,6 +165,8 @@ The goals of this course are to gain familiarity with the rapidly evolving field
  - constructing and assessing pangenomes
  - using pangenomes to find meaningful variation
 
-If you don't find this challenging, I have a *long* list of issues!
-
 ---
+
+# Some guiding steps
+
+If you don't find this challenging, I have a *long* list of issues!

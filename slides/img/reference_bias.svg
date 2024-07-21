@@ -24,14 +24,15 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      inkscape:zoom="1.1893044"
-     inkscape:cx="111.40966"
-     inkscape:cy="32.792278"
-     inkscape:window-width="2560"
-     inkscape:window-height="1387"
-     inkscape:window-x="1440"
+     inkscape:cx="545.69713"
+     inkscape:cy="22.702346"
+     inkscape:window-width="1440"
+     inkscape:window-height="847"
+     inkscape:window-x="0"
      inkscape:window-y="25"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="layer1"
+     showgrid="false" />
   <defs
      id="defs1" />
   <g
@@ -186,7 +187,7 @@
          style="stroke-width:0.264583"
          x="68.631592"
          y="92.293076"
-         id="tspan3">Similar sample ✓</tspan></text>
+         id="tspan1">Similar sample</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:7.05556px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
@@ -197,6 +198,6 @@
          style="stroke-width:0.264583"
          x="68.631592"
          y="155.39618"
-         id="tspan3-8">Dissimilar sample ✗</tspan></text>
+         id="tspan3-8">Dissimilar sample</tspan></text>
   </g>
 </svg>

@@ -6,7 +6,7 @@ institute: ETH Zürich
 date: Day 2
 output:
   beamer_presentation:
-    theme: "Boadilla"
+    theme: Boadilla
     keep_tex: true  
 ---
 
@@ -22,6 +22,7 @@ Get involved and discuss any questions or ideas of your own!
 # Objectives
 
 By the end of the lecture, we should be able to:
+
  - assemble genomes from long reads and evaluate them
  - understand common pangenome terminology and formats
  - build pangenomes graphs from input assemblies
@@ -39,7 +40,8 @@ By the end of the lecture, we should be able to:
 # Sequencing data
 
 Genome sequencing falls in several "generations":
- - Sanger (🦕🦖)
+
+ - Sanger (manual)
  - "Next generation" (high throughput)
  - Third generation (long reads)
 
@@ -51,9 +53,7 @@ Perhaps we are due for a fourth generation designation soon...
 
 Improvements in sequencing happen at a breakneck pace.
 
-![sequencing improvements](img/sequencing_technologies.svg)
-
-TODO: arrow heads rendering
+![sequencing improvements](img/sequencing_technologies.svg){ width=50% }
 
 ---
 
@@ -61,6 +61,8 @@ TODO: arrow heads rendering
 
 We most likely work with chromosomes that are too large to sequence directly. \
 Genome sequencing provides us with many smaller fragments.
+
+. . .
 
 We need to *reassemble* all the reads to reconstruct the original genome sequence.
 
@@ -75,6 +77,8 @@ TTAGGCAA
     GCAAGTCCCA  
          TCCCATTAA
 ```
+
+. . .
 
 The assembled sequence would be "TTAGGCAAGTCCCATTAA".\
 We call this a **contig** (refering to a **contig**uous region of the genome).
@@ -92,6 +96,8 @@ TTAGGCAA
           CATCATCATCCC
 ```
 
+. . .
+
 It is already ambiguous which read (the 3rd or 4th) is better, and so we have to "guess" the genome sequence.
 
 ---
@@ -99,7 +105,6 @@ It is already ambiguous which read (the 3rd or 4th) is better, and so we have to
 # Genome assembly — Theory
 
 Many genomes are unfortunately full of complex repeats that even with *perfect* reads cannot be resolved.
-Now, we add in sequencing errors and assembly gets even harder.
 
 ```ruby
 TTAGGCAA  
@@ -108,11 +113,17 @@ TTAGGCAA
            ^
 ```
 
+Now, we add in sequencing errors and assembly gets even harder.
+
 ---
 
 # Genome assembly — Theory
 
 Various theoretical arguments for how much sequencing coverage is needed to "guarantee" we can reassemble the genome correctly.
+
+. . .
+
+In short, long+accurate+high coverage is the best.
 
 ---
 
@@ -120,6 +131,8 @@ Various theoretical arguments for how much sequencing coverage is needed to "gua
 
 Confidently placing 150 (or smaller!) basepair sequencing reads was incredibly challenging. \
 Absolutely no hope of spanning complex repeats.
+
+. . .
 
 Highly fragmented assemblies, but each piece is generally correct.
 
@@ -129,6 +142,8 @@ Highly fragmented assemblies, but each piece is generally correct.
 
 Long reads solved some of the issues, but initially were extremely error-prone (>80% accuracy).
 
+. . .
+
 This required different assembly algorithms (de Bruijn graphs versus Overlap-Layout-Consensus).
 
 ---
@@ -137,12 +152,27 @@ This required different assembly algorithms (de Bruijn graphs versus Overlap-Lay
 
 With long and accurate reads, many problems disappeared.\
 Assemblers like `hifiasm` (https://github.com/chhylp123/hifiasm) enabled drastic improvements in both:
+
  - genome quality
  - compute resources
+ - data required
+
+. . .
 
 Jarvis et al. **Semi-automated assembly of high-quality diploid human reference genomes**. *Nature* (2022)
 
-Even more improvements with additional sequencing. \
+---
+
+# Genome assembly — Accurate long reads
+
+Even more improvements with additional sequencing:
+
+ - ONT ultralong reads
+ - Hi-C
+ - SBB/mod short reads
+
+. . .
+
 Rautiainen et al. **Telomere-to-telomere assembly of diploid chromosomes with Verkko**. *Nature Biotechnology* (2023)
 
 ---
@@ -153,10 +183,18 @@ Accurate long reads also enabled distinguishing genomic variation from errors **
 
 Many samples of interest are not haploid, we want to assemble each haplotype.
 
-For diploids, this is easier. \
-We can use parental information to assign phases.
+![triobinning](img/triobinning.svg){ width=50% }
 
-For higher ploidy, this is feasible but challenging.
+---
+
+# Genome assembly — Triobinning
+
+For diploids, this is easier. \
+We can use parental reads to assign phases *over heretozygous regions*.
+
+. . .
+
+For higher ploidy, this is challenging but feasible in theory.
 
 ---
 
@@ -164,7 +202,10 @@ For higher ploidy, this is feasible but challenging.
 
 How can we investigate how *good* our genome assemblies are?
 
+. . .
+
 Is the assembly:
+
  - **contiguous**?
  - **complete**?
  - **correct**?
@@ -174,11 +215,16 @@ Is the assembly:
 # Genome assessment — Contiguity
 
 The easiest metric has the hardest definition:
+
 >Given a set of contigs, the N50 is defined as the sequence length of the shortest contig such that 50% of the entire assembly is contained in contigs or scaffolds equal to or larger than this value.
+
+---
+
+# Genome assessment — Contiguity
 
 Basically, are the chromosomes mostly in one piece each.
 
-![NGx](img/N50.svg)
+![NGx](img/N50.svg){ width=40% }
 
 ---
 
@@ -186,7 +232,9 @@ Basically, are the chromosomes mostly in one piece each.
 
 We can exploit evolutionary conservation!
 
-Search the assembly for the set of Universal Single-Copy Orthologs (USCOs).
+Search the assembly for the set of **U**niversal **S**ingle-**C**opy **O**rthologs (USCOs).
+
+. . .
 
 Since these genes are conserved, anything that is missing contributes to "incompleteness".
 
@@ -195,6 +243,8 @@ Since these genes are conserved, anything that is missing contributes to "incomp
 # Genome assessment — Completeness
 
 We can also generate *k*-mers from short read sequencing.
+
+. . .
 
 Any sequencing *k*-mer missing from the assembly contributes to "incompleteness".
 
@@ -205,7 +255,9 @@ Any sequencing *k*-mer missing from the assembly contributes to "incompleteness"
 We can align the genome to the reference and call SNPs. \
 The more SNPs, the more presumed errors.
 
-⚠️ REFERENCE BIAS ⚠️
+. . .
+
+**†** REFERENCE BIAS **†**
 
 More diverged samples should have more SNPs.
 
@@ -215,19 +267,35 @@ More diverged samples should have more SNPs.
 
 We again can make use of *k*-mers from short read sequencing.
 
+. . .
+
 Assembly *k*-mers not found in the sequencing are more confidently errors.
+
+. . .
 
 Assembly *k*-mers found too often or not often enough are potential false collapses/duplications.
 
-![k-mer spectrum](img/kmer_spectrum.svg)
+---
+
+# Genome assessment — Correctness
+
+![k-mer spectrum](img/kmer_spectrum.svg){ width=60% }
+
+Can calculate a "QV" score from these.
 
 ---
 
 # Genome assessment
 
 There are many limitations to any "summary" metrics:
+
+. . .
+
+:::incremental
  - Many of these are global measures, but many misassemblies are local.
  - How do we pick the "best" assembly if the metrics are not strictly better in one option?
+ - They were developed based on an outdated "state of the art".
+:::
 
 ---
 
@@ -235,16 +303,28 @@ There are many limitations to any "summary" metrics:
 
 Some of these metrics are quickly becoming pointless with routine, high-quality assemblies.
 
+. . .
+
 How will we assess genomes in the near future? \
 Will we even *need* to assess them?
 
 ---
 
+# A quick break
+
+And then we move into pangenomes!
+
+---
+
 # Pangenomes
+
+TODO: coordinates not the same?
+TODO: purpose of reference vs analysis
 
 We now have a lot of genome assemblies, what are we going to do?
 
 We broadly want to:
+
  - collapse similar regions into one sequence
  - represent variation as related regions
 
@@ -252,8 +332,9 @@ We broadly want to:
 
 # Pangenomes
 
-How "compact"/"strict" we want can vary. \
- Consider a region with a SNP every other base, should that be one big bubble or lots of small ones?
+How "compact"/"strict" we want can vary.
+
+Consider a region with a SNP every other base, should that be one big bubble or lots of small ones?
 
 ---
 
@@ -266,6 +347,8 @@ Ideally some happy intermediate between nucleotide-level and redundant sequence.
 ---
 
 # Pangenomes
+
+Something like
 
 ![extreme pangenome types](img/ideal_graph_types.svg)
 
@@ -287,11 +370,11 @@ Ideally some happy intermediate between nucleotide-level and redundant sequence.
 
 # Genome file formats
 
-Most sequencing data (or anything representing genomes) are in fasta/q.
+Most sequencing data (or anything representing genomes) are in *fasta*/*q*.
 
-Sequence alignments are generally in SAM/BAM.
+Sequence alignments are generally in *SAM*/*BAM*.
 
-Other miscellaneous files like BED, GFF, etc.
+Other miscellaneous files like *BED*, *GFF*, etc.
 
 ---
 
@@ -324,6 +407,7 @@ There are other, less used lines (**W**alk/**J**ump).
 # Pangenome file formats
 
 Most downstream tools have their own "efficient" representation:
+
  - `.og`
  - `.vg`
  - `.xg`
@@ -340,6 +424,7 @@ GFA is human-readable and can be stored better for computer operations.
 A graph "superset" of **PAF** (Pairwise mApping Format).
 
 Similar to SAM/BAM, broadly capturing:
+
  - which read
  - aligns to where
  - and how good it was
@@ -362,14 +447,14 @@ Overview on
 
 Several types:
 
- - minigraph (https://github.com/lh3/minigraph)
- - cactus (https://github.com/ComparativeGenomicsToolkit/cactus)
- - pggb (https://github.com/pangenome/pggb)
- - pgr-tk (https://github.com/cschin/pgr-tk)
+ - `minigraph` (https://github.com/lh3/minigraph)
+ - `cactus` (https://github.com/ComparativeGenomicsToolkit/cactus)
+ - `pggb` (https://github.com/pangenome/pggb)
+ - `pgr-tk` (https://github.com/cschin/pgr-tk)
 
 Some specialised types:
 
- - pangene (https://github.com/lh3/pangene)
+ - `pangene` (https://github.com/lh3/pangene)
 
 ---
 
@@ -385,7 +470,7 @@ Some specialised types:
 
  # Building pangenomes — tools
 
-`pggb` is lossless, so is cactus?
+`pggb` is lossless, so is `cactus`?
 
 Can perfectly reconstruct any assembly from the graph, this is not true for minigraph.
 
@@ -397,15 +482,42 @@ Some form of alignment
 
 Some form of collapsing homology
 
+TODO: pggb params?
+
 ---
 
 # Building bigger pangenomes
 
-N+1 problem is a big problem
+Many large scale efforts in progress:
 
-How do these problems scale for compute resources?
+ - Human Pangenome Research Council
+ - Vertebrate Genome Project
+ - Darwin Tree of Life
 
+Several hundreds of genomes. \
+Millions of core hours!
+
+---
+
+# Building bigger pangenomes
+
+The "N+1" problem is a **big** problem for consortia:
+
+ - rebuild with annual data freezes?
+ - "stable" graph and "development" graph?
+
+---
+
+# Building bigger pangenomes
+
+How do these problems scale for compute resources? \
 What will be bottlenecks in the near future?
+
+. . .
+
+ - `wfmash` is TODO: BIG  ̸O
+ - `seqwish` is memory/disk hungry
+ - `GFAffix` is almost IO bound
 
 ---
 
@@ -416,26 +528,17 @@ Overview on
  - pros/cons
  - different pipelines for "variation graphs"
 
-
-
 ---
 
-# HPRC/VGP/dToL updates
-
-Consider big projects, with millions of core hours
-
-Overview on
- - pangenome types
- - pros/cons
- - different pipelines for "variation graphs"
-
----
-
-# Additional thoughts
+# Assembly pangenomes
 
 Some genome assemblers start by building graphs representing variation in the sequencing reads.
 
+. . .
+
 *Isn't that a type of pangenome?*
+
+. . .
 
 Could we represent `n=2+` genomes as graphs?
 
@@ -443,11 +546,13 @@ Could we represent somatic mutations as graphs?
 
 ---
 
-# Additional thoughts
+# Assembly pangenomes
 
-The answer is **maybe?**
+The answer is: *maybe?*
 
 "Graph-to-graph" alignment is a harder problem, but an intriguing idea to consider.
+
+. . .
 
 We will almost certainly never work with **less** variation, so what will that future look like?
 
@@ -455,15 +560,17 @@ We will almost certainly never work with **less** variation, so what will that f
 
 # Summary
 
+. . .
+
+:::incremental
  - Accurate long reads have *effectively* "solved" genome assembly
    - Some complex organisms (plants especially) still have challenges
  - Graph pangenomes are great for representing all this newly accessible variation
  - Different pangenomes have different (dis)advantages
+:::
 
 ---
 
 # Questions?
 
-And then ☕
-
----
+And then coffee
