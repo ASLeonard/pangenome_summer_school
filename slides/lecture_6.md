@@ -48,7 +48,7 @@ What types of genomic data do we normally try and visualise?
 
 # Visualising genomic data
 
-IGV (**Integrative Genomics Viewer**) is a useful tool for visualising different formats of genomic data:
+IGV (**I**ntegrative **G**enomics **V**iewer, [https://igv.org/doc/desktop/](https://igv.org/doc/desktop/)) is a useful tool for visualising different formats of genomic data:
 
  - read alignments
  - bed files
@@ -56,8 +56,10 @@ IGV (**Integrative Genomics Viewer**) is a useful tool for visualising different
 
 . . .
 
-*Seeing* the data can often influence later analyses. \
-Too many/few reads where we expect them, overlap of variants and complex annotations, etc.
+*Seeing* the data can often influence later analyses:
+
+ - too many/few reads where we expect them
+ - overlap of variants and complex annotations
 
 ---
 
@@ -100,7 +102,7 @@ But it depends what are we interested in:
 
 How do we visualise the *GFA* output of pangenome construction?
 
-One of the most common tools is `Bandage` (https://github.com/asl/BandageNG). \
+One of the most common tools is `Bandage` ([https://github.com/asl/BandageNG](https://github.com/asl/BandageNG)). \
 It has several advantages:
 
  - easy to install
@@ -129,7 +131,7 @@ A not-so-easy example of that region in cactus.
 
 A hard example of that region in pggb.
 
-![pggb example](img/pggb.png){ width=60% }
+![pggb example](img/pggb.png){ width=30% }
 
 ---
 
@@ -161,7 +163,7 @@ How can we look at pangenomes (and the relationships between assemblies) on a *g
 
 # Pangenomic synteny
 
-Synteny Circos plot *can* be an informative way to compare assemblies.
+Synteny Circos plots *can* be an informative way to compare assemblies.
 
 . . .
 
@@ -212,13 +214,13 @@ Even the variation you see is hard to relate amongst all assemblies.
 
 # A quick break
 
-And then more `odgi`!
+And then some `odgi`!
 
 ---
 
 # Pangenomic synteny
 
-Another *critical* pangenome tool is `odgi` (https://github.com/pangenome/odgi).
+Another *critical* pangenome tool is `odgi` ([https://github.com/pangenome/odgi](https://github.com/pangenome/odgi)).
 
 > `odgi` is a play on the Italian word "oggi" (/ˈɔd.dʒi/), which means "today". \
 >As of 2019, a standard refrain in genomics is that genome graphs will be useful in x years. \
@@ -235,7 +237,10 @@ This bins the pangenome and produces a linear, static visualisation of the graph
 
 . . .
 
-Nodes are "ordered" left to right, but what does that mean? \
+Nodes are "ordered" left to right, but what does that mean?
+
+. . .
+
 **THEY ARE NOT NECESSARILY SEQUENTIAL**
 
 . . .
@@ -266,7 +271,9 @@ There are many additional layers of information we can use:
 
 We can "inject" an annotation from **any** assembly into the pangenome.
 
-![cicros plot](img/odgi_inject.svg){ width=95% }
+. . .
+
+![odgi inject](img/odgi_inject.svg){ width=95% }
 
 . . .
 
@@ -276,12 +283,19 @@ Let the pangenome do the hard work for dealing with pangenome coordinates!
 
 # `odgi untangle`
 
-We can also "untangle" a graph bubble locally. \
-Easier to see copy number variation or gene structure.
+We can also "untangle" a graph bubble locally, and "linearise" it.
+
+![odgi tangle](img/odgi_tangled.png){ width=90% }
+
+---
+
+# `odgi untangle`
+
+Easier to see copy number variation (like *VNTRs*) or gene structure.
 
 . . .
 
-![cicros plot](img/odgi_untangle.svg){ width=50% }
+![odgi untangle](img/odgi_untangle.png){ width=50% }
 
 ---
 
@@ -295,7 +309,7 @@ Pangenomes can be efficient visualiation structures.
 
 . . .
 
-Linear sequence context will *always* make more sense.
+Linear sequence context will *always* make more sense to us.
 
 . . .
 
@@ -307,11 +321,11 @@ These plots still use pangenomics before the final image.
 
 These tools are also likely best used in combination, so we can understand the graph at different scales.
 
-![multiple visualisers](img/multiscale_viz.png){ width=70% }
+![multiple visualisers](img/multiscale_viz.png){ width=30% }
 
 . . .
 
-"Publication figures" might focus on different "graphness" levels.
+["Publication figures"](https://www.annualreviews.org/content/journals/10.1146/annurev-genom-120219-080406) might focus on different "graphness" levels.
 
 ---
 
@@ -326,7 +340,7 @@ There are many other tools:
 
 . . .
 
-And even more "Pan" puns at https://github.com/colindaven/awesome-pangenomes.
+And even more "Pan" puns at [https://github.com/colindaven/awesome-pangenomes](https://github.com/colindaven/awesome-pangenomes).
 
 ---
 
