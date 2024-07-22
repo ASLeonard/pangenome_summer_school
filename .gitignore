@@ -1,0 +1,14 @@
+*.DS_Store
+
+practicals
+!practicals/*.md
+!practicals/*.yaml
+
+slides
+!slides/*.md
+!slides/Makefile
+
+slides/img
+!slides/img/*.png
+!slides/img/*.svg
+

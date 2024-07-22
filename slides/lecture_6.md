@@ -129,13 +129,13 @@ A not-so-easy example of that region in cactus.
 
 A hard example of that region in pggb.
 
-![pggb example](img/pggb.png){ width=80% }
+![pggb example](img/pggb.png){ width=60% }
 
 ---
 
 # Using `Bandage` interactively
 
-Beyond view graphs, we can use Bandage for:
+Beyond viewing graphs, we can also use `Bandage` for:
 
  - searching for sequence hits (`blastn`, `minimap2`, etc.)
  - annotating paths
@@ -198,7 +198,15 @@ But, this can be a helpful *stepping stone* to transition to pangenomic concepts
 
 Viewing too much information can be just as unhelpful as viewing too little.
 
-TODO: All vs all paf plot
+![pafplot](img/pafplot.png){ width=50% }
+
+---
+
+# Pangenomic synteny
+
+![pafplot zoom](img/pafplot_zoom.png){ width=50% }
+
+Even the variation you see is hard to relate amongst all assemblies.
 
 ---
 
@@ -212,7 +220,7 @@ And then more `odgi`!
 
 Another *critical* pangenome tool is `odgi` (https://github.com/pangenome/odgi).
 
-> odgi is a play on the Italian word "oggi" (/ˈɔd.dʒi/), which means "today". \
+> `odgi` is a play on the Italian word "oggi" (/ˈɔd.dʒi/), which means "today". \
 >As of 2019, a standard refrain in genomics is that genome graphs will be useful in x years. \
 >But, if we make them efficient and scalable, they will be useful today.
 
@@ -223,9 +231,15 @@ This bins the pangenome and produces a linear, static visualisation of the graph
 
 # `odgi` visualisations
 
-TODO: wisent example for viz?
+![odgi depth](img/odgi_depth.png){ width=95% }
+
+. . .
 
 Nodes are "ordered" left to right, but what does that mean? \
+**THEY ARE NOT NECESSARILY SEQUENTIAL**
+
+. . .
+
 How do we interpret the links (graph topology)?
 
 ---
@@ -234,7 +248,7 @@ How do we interpret the links (graph topology)?
 
 We can also plot a "compressed" mode, and see which regions are variable.
 
-TODO: add compressed plot
+![odgi compressed](img/odgi_compressed.png){ width=95% }
 
 ---
 
@@ -293,11 +307,11 @@ These plots still use pangenomics before the final image.
 
 These tools are also likely best used in combination, so we can understand the graph at different scales.
 
-Adapted from https://www.annualreviews.org/content/journals/10.1146/annurev-genom-120219-080406
+![multiple visualisers](img/multiscale_viz.png){ width=70% }
 
-Want to see broad synteny (odgi viz)
-Want to see specific loci (bandage)
-TODO: adapt this
+. . .
+
+"Publication figures" might focus on different "graphness" levels.
 
 ---
 

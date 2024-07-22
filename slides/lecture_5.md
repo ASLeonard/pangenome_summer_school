@@ -316,9 +316,19 @@ And then we move into pangenomes!
 
 ---
 
-# Pangenomes
+# Pangenome complications
+
+Comparing assemblies
 
 TODO: coordinates not the same?
+
+
+---
+
+
+# Pangenomes
+
+
 TODO: purpose of reference vs analysis
 
 We now have a lot of genome assemblies, what are we going to do?
@@ -342,7 +352,7 @@ Consider a region with a SNP every other base, should that be one big bubble or 
 
 Ideally some happy intermediate between nucleotide-level and redundant sequence.
 
-![extreme pangenome types](img/extreme_graph_types.svg)
+![extreme pangenome types](img/extreme_graph_types.svg){ width=90% }
 
 ---
 
@@ -350,7 +360,7 @@ Ideally some happy intermediate between nucleotide-level and redundant sequence.
 
 Something like
 
-![extreme pangenome types](img/ideal_graph_types.svg)
+![extreme pangenome types](img/ideal_graph_types.svg){ width=90% }
 
 ---
 
@@ -389,7 +399,7 @@ Three main components:
  - L-lines: how the graph is connected with edges
  - P-lines: how a "sample" traverses the graph (*optional*)
 
-```
+```ruby
 S s1  AATTTACC
 S s2  GGTAT
 S s3  T
@@ -515,9 +525,13 @@ What will be bottlenecks in the near future?
 
 . . .
 
- - `wfmash` is TODO: BIG  ̸O
+ - `wfmash` is $\mathcal{O}(n^2)$
  - `seqwish` is memory/disk hungry
  - `GFAffix` is almost IO bound
+
+. . .
+
+*Will rate of development beat rate of sequencing?*
 
 ---
 
