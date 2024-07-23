@@ -68,7 +68,6 @@ samtools index -@ 2 -c data/OxO.Illumina.25.bam
 
 curl https://polybox.ethz.ch/index.php/s/saR530eBS8YimRp/download > data/OxO.ONT.25.bam
 samtools index -@ 2 -c data/OxO.ONT.25.bam
-
 ```
 
 Now we want to align the reads to the reference with minimap2
@@ -79,6 +78,11 @@ minimap2 -a -x map-hifi -t 4 data/ARS-UCD1.2.fa.gz data/OxO.HiFi.25.fq.gz | samt
 Where we are piping the SAM output of minimap2 into samtools to directly create our BAM alignment file.
 For minimap2, the parameters are `-a` to output SAM with base-level alignment, `-x map-hifi` to use mapping parameters appropriate for HiFi reads, and `-t 4` to use 4 threads.
 For samtools, we are coordinate-sorting the output with 4 threads (`-@ 4`) and creating the ".csi" index file on the fly (`--write-index`).
+
+We can download the file if you have any issues from
+```
+https://polybox.ethz.ch/index.php/s/tva6Jt7hbooIjg8`/download data/OxO.HiFi.25.bam
+```
 
 ---
 
