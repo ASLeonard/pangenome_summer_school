@@ -73,7 +73,7 @@ samtools index -@ 2 -c data/OxO.ONT.25.bam
 
 Now we want to align the reads to the reference with minimap2
 ```
-minimap2 -a -x map-hifi -t 4 data/ARS-UCD1.2.fa.gz data/OxO.HiFi.25.fq.gz | samtools sort - -@ 4 --write-index -T $TMPDIR -o data/OxO.HiFi.25.bam
+minimap2 -a -x map-hifi -t 4 data/ARS-UCD1.2.fa.gz data/OxO.HiFi.25.fq.gz | samtools sort - -@ 4 --write-index -o data/OxO.HiFi.25.bam
 ```
 
 Where we are piping the SAM output of minimap2 into samtools to directly create our BAM alignment file.
@@ -111,8 +111,6 @@ mkdir assemblies
 gunzip -dc data/OxO.HiFi.25.fq.gz > data/OxO.HiFi.25.fq
 rust-mdbg -k 31 -l 24 --density 0.003 --bf --minabund 2 --prefix assemblies/OxO.HiFi.25.mdbg --threads 4 data/OxO.HiFi.25.fq
 
-## magic simplify?
-
 gfatools asm -u assemblies/OxO.HiFi.25.mdbg.gfa > assemblies/OxO.HiFi.25.mdbg.unitgs.gfa
 to_basespace --gfa assemblies/OxO.HiFi.25.mdbg.unitgs.gfa --sequences assemblies/OxO.HiFi.25.mdbg
 gfatools gfa2fa assemblies/OxO.HiFi.25.mdbg.unitgs.gfa.complete.gfa > assemblies/OxO.HiFi.25.asm_mdbg.fa
@@ -127,8 +125,8 @@ Does this improve or worsen the N50?
 ```
 mkdir tools
 curl https://raw.githubusercontent.com/lh3/calN50/master/calN50.js > tools/calN50.js
-k8 calN50.js assemblies/OxO.HiFi.25.asm_mdbg.fa
-k8 calN50.js -L 42350435 assemblies/OxO.HiFi.25.asm_mdbg.fa
+k8 tools/calN50.js assemblies/OxO.HiFi.25.asm_mdbg.fa
+k8 tools/calN50.js -L 42350435 assemblies/OxO.HiFi.25.asm_mdbg.fa
 
 ```
 
@@ -139,8 +137,8 @@ We'll manually install this tool due to unnecessary conflicts in conda.
 git clone https://github.com/huangnengCSU/compleasm.git
 (cd compleasm; pip install .) #temporarily moves into compleasm directory and installs
 
-compleasm download cetartiodactyla -L <dir>
-compleasm run -a <asm.fa> -o completeness -l cetartiodactyla -L <dir> -t 4
+compleasm download cetartiodactyla -L mb_download
+compleasm run -a assemblies/OxO.HiFi.25.asm_mdbg.fa -o completeness -l cetartiodactyla -L mb_download -t 4
 ```
 
 Remember, we only assembled chromosome 25, so we should expect to find only a small fraction of the USCOs (around 460 for a good cattle genome).
@@ -175,7 +173,7 @@ We can also run `hifiasm`, a more resource-intensive assembler but likely to pro
 
 Let's build a hifiasm assembly and then we can repeat the quality assessment of the assembly.
 ```
-hifiasm -t 4 -o assemblies/OxO.HiFi.25.asm_hifiasm --primary data/OxO.HiFi.fq.gz
+hifiasm -t 4 -o assemblies/OxO.HiFi.25.asm_hifiasm --primary data/OxO.HiFi.25.fq.gz
 gfatools gfa2fa assemblies/OxO.HiFi.25.asm_hifiasm.p_ctg.gfa > assemblies/OxO.HiFi.25.asm_hifiasm.fa
 ```
 
