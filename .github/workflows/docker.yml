@@ -49,7 +49,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: bunop/pangenome_summer_school
+          images: asleonard/pangenome_summer_school
           tags: |
             type=ref,event=branch
             type=ref,event=pr
