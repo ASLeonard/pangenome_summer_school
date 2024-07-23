@@ -1,0 +1,29 @@
+name: summerschool2
+channels:
+  - defaults
+  - conda-forge
+  - bioconda
+dependencies:
+  - python
+  - rust-mdbg
+  - minimap2
+  - samtools
+  - bcftools
+  - gfatools
+  - ragtag
+  - minigraph
+  - sniffles
+  - jasminesv
+  - bedtools
+  - miniprot
+  - hmmer
+  - hifiasm
+  - htslib
+  - pip
+  - mummer
+  - k8
+  - numpy
+  - racon
+  - panacus
+  - scipy
+  - seaborn
