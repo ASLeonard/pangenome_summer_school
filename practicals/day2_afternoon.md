@@ -81,7 +81,7 @@ For samtools, we are coordinate-sorting the output with 4 threads (`-@ 4`) and c
 
 We can download the file if you have any issues from
 ```
-https://polybox.ethz.ch/index.php/s/tva6Jt7hbooIjg8`/download data/OxO.HiFi.25.bam
+curl https://polybox.ethz.ch/index.php/s/tva6Jt7hbooIjg8/download > data/OxO.HiFi.25.bam
 ```
 
 ---
