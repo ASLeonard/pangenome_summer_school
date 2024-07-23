@@ -15,6 +15,8 @@ output:
 There are not any pangenome "curriculums". \
 These are ideas *we think* are useful to help apply pangenomics to your own research.
 
+. . .
+
 Get involved and discuss any questions or ideas of your own!
 
 ---
@@ -44,6 +46,8 @@ Genome sequencing falls in several "generations":
  - Sanger (manual)
  - "Next generation" (high throughput)
  - Third generation (long reads)
+
+. . .
 
 Perhaps we are due for a fourth generation designation soon...
 
@@ -106,6 +110,8 @@ It is already ambiguous which read (the 3rd or 4th) is better, and so we have to
 
 Many genomes are unfortunately full of complex repeats that even with *perfect* reads cannot be resolved.
 
+. . .
+
 ```ruby
 TTAGGCAA  
     GCAAGTCCCA  
@@ -151,7 +157,7 @@ This required different assembly algorithms (de Bruijn graphs versus Overlap-Lay
 # Genome assembly — Accurate long reads
 
 With long and accurate reads, many problems disappeared.\
-Assemblers like `hifiasm` (https://github.com/chhylp123/hifiasm) enabled drastic improvements in both:
+Assemblers like `hifiasm` ([https://github.com/chhylp123/hifiasm](https://github.com/chhylp123/hifiasm)) enabled drastic improvements in:
 
  - genome quality
  - compute resources
@@ -169,11 +175,13 @@ Even more improvements with additional sequencing:
 
  - ONT ultralong reads
  - Hi-C
- - SBB/mod short reads
+ - SBB/6b4 reads
 
 . . .
 
 Rautiainen et al. **Telomere-to-telomere assembly of diploid chromosomes with Verkko**. *Nature Biotechnology* (2023)
+
+Q100 project ([https://github.com/marbl/HG002](https://github.com/marbl/HG002))
 
 ---
 
@@ -316,41 +324,47 @@ And then we move into pangenomes!
 
 ---
 
-# Pangenome complications
+# The original pangenome?
 
-Comparing assemblies
+As uncovered by Erik Garrison, inspired by [Desmond and Colomb (2009)](https://www.sciencedirect.com/science/article/abs/pii/S1071581909000214).
 
-TODO: coordinates not the same?
+Valerio Magrelli's "Campagna Romana" (1981):
 
+![pangenome poem](img/poem_pangenome.png){ width=70% }
 
 ---
 
-
 # Pangenomes
-
-
-TODO: purpose of reference vs analysis
 
 We now have a lot of genome assemblies, what are we going to do?
 
-We broadly want to:
+. . .
 
- - collapse similar regions into one sequence
- - represent variation as related regions
+We broadly want:
 
----
+ - similar regions to be represented once
+ - diverged regions to show that variability
 
-# Pangenomes
+. . .
 
-How "compact"/"strict" we want can vary.
-
-Consider a region with a SNP every other base, should that be one big bubble or lots of small ones?
+This involves some alignment step and some collapsing step.
 
 ---
 
 # Pangenomes
 
-Ideally some happy intermediate between nucleotide-level and redundant sequence.
+There is not just "one" pangenome we can build from the same input, unlike genome assembly.
+
+. . .
+
+Consider a region with dense variation, like SNPs every few bases. \
+How should that be represented?
+
+---
+
+# Pangenomes
+
+
 
 ![extreme pangenome types](img/extreme_graph_types.svg){ width=90% }
 
@@ -358,9 +372,22 @@ Ideally some happy intermediate between nucleotide-level and redundant sequence.
 
 # Pangenomes
 
-Something like
+Ideally some happy intermediate between nucleotide-level and redundant sequence.
 
 ![extreme pangenome types](img/ideal_graph_types.svg){ width=90% }
+
+---
+
+# Purpose of a pangenome
+
+The type of graph you want may differ on your needs:
+
+ - reference genomes
+ - pangenomes for a specific analysis
+
+. .  .
+
+Keep in mind the needs of *your* project.
 
 ---
 
@@ -370,7 +397,7 @@ Something like
 
 **Graph**: a type of pangenome representation with nodes and edges
 
-**Nodes**: some sequence
+**Nodes**: some contiguous sequence
 
 **Edges**: connection between contiguous sequences
 
@@ -390,14 +417,18 @@ Other miscellaneous files like *BED*, *GFF*, etc.
 
 # Pangenome file formats
 
-New file formats!
+New file formats! \
+**GFA**: Graphical Fragment assembly.
 
-**GFA**: Graphical Fragment assembly \
+. . .
+
 Three main components:
 
  - S-lines: the sequence of the nodes
  - L-lines: how the graph is connected with edges
  - P-lines: how a "sample" traverses the graph (*optional*)
+
+. . .
 
 ```ruby
 S s1  AATTTACC
@@ -409,6 +440,7 @@ L s2  + s3  - 0M
 P ME  s1+,s2+,s3+x
 P YOU s1+,s3+
 ```
+. . .
 
 There are other, less used lines (**W**alk/**J**ump).
 
@@ -430,8 +462,8 @@ GFA is human-readable and can be stored better for computer operations.
 
 # Pangenome file formats
 
-**GAF**: Graph Alignment Format \
-A graph "superset" of **PAF** (Pairwise mApping Format).
+GAF: **G**raph **A**lignment **F**ormat \
+A graph "superset" of PAF (**P**airwise **m**Apping **F**ormat).
 
 Similar to SAM/BAM, broadly capturing:
 
@@ -443,56 +475,172 @@ Similar to SAM/BAM, broadly capturing:
 
 ---
 
-# Pangenomes
-
-TODO: we focus on graph/sequence pangenoems
-Overview on
- - pangenome types
-
- TODO: Create pangenome from VCF (but all the biases remain)
-
----
-
 # Building pangenomes — tools
 
-Several types:
+Several types of whole-genome sequence graph builders:
 
- - `minigraph` (https://github.com/lh3/minigraph)
- - `cactus` (https://github.com/ComparativeGenomicsToolkit/cactus)
- - `pggb` (https://github.com/pangenome/pggb)
- - `pgr-tk` (https://github.com/cschin/pgr-tk)
+ - `minigraph` ([https://github.com/lh3/minigraph](https://github.com/lh3/minigraph))
+ - `cactus` ([https://github.com/ComparativeGenomicsToolkit/cactus](https://github.com/ComparativeGenomicsToolkit/cactus))
+ - `pggb` ([https://github.com/pangenome/pggb](https://github.com/pangenome/pggb))
+ - `pgr-tk` ([https://github.com/cschin/pgr-tk](https://github.com/cschin/pgr-tk))
+
+. . .
 
 Some specialised types:
 
- - `pangene` (https://github.com/lh3/pangene)
+ - `pangene` ([https://github.com/lh3/pangene](https://github.com/lh3/pangene))
+ - `pantools` ([https://git.wur.nl/bioinformatics/pantools](https://git.wur.nl/bioinformatics/pantools))
+ - `vg` ([https://github.com/vgteam/vg](https://github.com/vgteam/vg))
 
 ---
 
 # Building pangenomes — tools
 
-|             | Structural variation | Small variation | Reference-based | N+1      | Compute needed |
-|-------------|:--------------------:|:---------------:|:---------------:|:--------:|:--------------:|
-| `minigraph` | Yes                  | No              | Yes             | Easy     | Laptop         |
-| `cactus`    | Yes                  | Yes             | No-ish          | Easy-ish | Cluster        |
-| `pggb`      | Yes                  | Yes             | No              | Rebuild  | Big cluster    |
+|             | $\geq 50$ bp | $< 50$ bp | Reference-based | Lossless | N+1      | Compute     |
+|-------------|:------:|:------:|:---------------:|:--------:|:--------:|:-----------:|
+| `minigraph` | Yes    | No     | Yes             | No       | Easy     | Laptop      |
+| `cactus`    | Yes    | Yes    | No-ish          | Yes      | Easy-ish | Cluster     |
+| `pggb`      | Yes    | Yes    | No              | Yes      | Rebuild  | Big cluster |
+
+. . .
+
+We can perfectly reconstruct any assembly from a lossless graph.
 
 ---
 
- # Building pangenomes — tools
+# `minigraph`
 
-`pggb` is lossless, so is `cactus`?
+Add bubbles to graph one-by-one.
 
-Can perfectly reconstruct any assembly from the graph, this is not true for minigraph.
+![minigraph steps](img/minigraph_pipeline.png){ width=60% }
 
 ---
 
-# Building pangenomes — steps
+# progressive `cactus`
 
-Some form of alignment
+Solve many pairwise problems.
 
-Some form of collapsing homology
+![progressive cactus steps](img/progressivecactus_pipeline.png){ width=80% }
 
-TODO: pggb params?
+---
+
+# `minigraph`-`cactus`
+
+Add SNP-level details to a `minigraph` graph.
+
+![cactus steps](img/cactus_pipeline.png){ width=80% }
+
+---
+
+# `pggb`
+
+"Transitive closure" ($R^{+}=\bigcup_{i = 1}^{\infty} R^i$) over all-versus-all alignments.
+
+![pggb steps](img/pggb_pipeline.png){ width=80% }
+
+---
+
+# Pangenome parameters
+
+`minigraph` can be shaped by:
+
+ - `-j`: divergence level
+ - `-L`: minimum "bubble" size
+
+. . .
+
+`pggb` can be shaped by:
+
+ - `-p`: similarity level
+ - `-s`: mapping segment length
+
+. . .
+
+Parameter recommendations **frequently** change as the software changes.
+
+. . .
+
+They are also rarely *intuitive*.
+
+---
+
+# Pangenome naming
+
+Having 100 assemblies with ">chr1" is unhelpful!
+
+. . .
+
+We can use PanSN-spec ([https://github.com/pangenome/PanSN-spec](https://github.com/pangenome/PanSN-spec)).
+
+```ruby
+[sample_name][delim][haplotype_id][delim][contig_or_scaffold_name]
+```
+
+. . .
+
+For example:
+
+ - "sample\_49#2#X" for chromosome X of the second haplotype of sample_49
+ - "BSW#0#1" for chromosome 1 of a primary Brown Swiss assembly
+
+---
+
+# Pangenome naming
+
+Some programs (e.g., `vg`, `odgi`, `wfmash`, etc.) implicitly assume PanSN-spec. \
+We don't want to do impossible alignments.
+
+. . .
+
+Unless we want to (e.g., inter-chromosomal duplications).
+
+---
+
+# Pangenome coordinates
+
+Reference genomes allowed us to *universally* refer to the same location.
+
+. . .
+
+InDels within individuals means coordinates rarely match between assemblies.
+
+. . .
+
+Uneven assembly (or true biological variation) of telo/centromeres wildly change coordinates.
+
+---
+
+# Pangenome coordinates
+
+One partial solution is **rGFA** (reference GFA), used by `minigraph`.
+
+Can refer to any non-reference sequence relative to the reference "backbone".
+
+. . .
+
+Adds the *SN*, *SO*, *SR* tags to the GFA.
+
+. . .
+
+**This still breaks if you update your graph!**
+
+---
+
+# Pangenome coordinates
+
+Other tools like `pggb` and `cactus` avoid this feature/issue by being "reference-free".
+
+. . .
+
+Converting coordinates within a lossless graph is straightforward.
+
+---
+
+# Pangenome coordinates
+
+Except when it is undefined!
+
+![BPC diagram](img/BPC_diagram.svg){ width=75% }
 
 ---
 
@@ -504,14 +652,13 @@ Many large scale efforts in progress:
  - Vertebrate Genome Project
  - Darwin Tree of Life
 
-Several hundreds of genomes. \
-Millions of core hours!
+Several hundreds of genomes can take millions of core hours!
 
 ---
 
 # Building bigger pangenomes
 
-The "N+1" problem is a **big** problem for consortia:
+The $N+1$ problem is a **big** problem for consortia:
 
  - rebuild with annual data freezes?
  - "stable" graph and "development" graph?
@@ -531,16 +678,7 @@ What will be bottlenecks in the near future?
 
 . . .
 
-*Will rate of development beat rate of sequencing?*
-
----
-
-# Pangenomes
-
-Overview on
- - pangenome types
- - pros/cons
- - different pipelines for "variation graphs"
+*Will rate of development beat the rate of sequencing?*
 
 ---
 

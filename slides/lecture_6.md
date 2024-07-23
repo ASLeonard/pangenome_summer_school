@@ -285,7 +285,7 @@ Let the pangenome do the hard work for dealing with pangenome coordinates!
 
 We can also "untangle" a graph bubble locally, and "linearise" it.
 
-![odgi tangle](img/odgi_tangled.png){ width=90% }
+![odgi tangle](img/odgi_tangled.svg){ width=90% }
 
 ---
 
