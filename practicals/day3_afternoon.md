@@ -36,6 +36,9 @@ We also want to specify the ploidy as 1, because even though we mostly work on d
 mamba install -c conda-forge -c bioconda vg vcflib vcfbub
 
 
+# we can also download the GFA from yesterday if we didn't reach that point
+curl https://polybox.ethz.ch/index.php/s/rymYdwM8wxUfm1V/download > pangenome/bovines_with_P_lines.gfa
+
 ##LINUX ONLY
 vg deconstruct -p "HER" --path-traversals --ploidy 1 -t 2 pangenome/bovines_with_P_lines.gfa > pangenome/minigraph.vcf
 vcfbub -l 0 -a 10000 --input pangenome/minigraph.vcf | vcfwave -I 1000 -t 4 > pangenome/minigraph.decom.vcf
