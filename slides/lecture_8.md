@@ -53,7 +53,7 @@ S s3  T
 L s1  + s2  + 0M
 L s1  + s3  + 0M
 L s2  + s3  - 0M
-P ME  s1+,s2+,s3+x
+P ME  s1+,s2+,s3
 P YOU s1+,s3+
 ```
 

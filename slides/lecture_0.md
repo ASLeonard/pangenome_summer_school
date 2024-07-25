@@ -6,7 +6,7 @@ institute: ETH Zürich
 date: Day 1
 output:
   beamer_presentation:
-    theme: "Boadilla"
+    theme: Boadilla
     keep_tex: true
 ---
 

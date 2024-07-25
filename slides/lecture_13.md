@@ -13,6 +13,7 @@ output:
 # Recap
 
 We have learned about:
+
  - aligning short or long reads to pangenome graphs
  - manipulating GAF files
  - impracticalities of working with complex graphs
@@ -22,6 +23,7 @@ We have learned about:
 # Objectives
 
 By the end of the lecture, we should be able to:
+
  - prioritise interesting regions for manual inspection
  - search pangenome graphs for disrupted genes
  - identify putative QTL bubbles associated with binary traits
@@ -30,10 +32,10 @@ By the end of the lecture, we should be able to:
 
 # Overview
 
-- "Functional" variants
-- Easy approaches
-- Hard approaches
-- Possible future directions
+ - "Functional" variants
+ - Easy approaches
+ - Hard approaches
+ - Possible future directions
 
 ---
 
@@ -42,7 +44,10 @@ By the end of the lecture, we should be able to:
 Pangenomes are big and contain a lot of variation. \
 Can we prioritise variants that are *more likely* to be meaningful?
 
+. . .
+
 What can we do with:
+
  - pangenomes
  - reference annotations
  - breed/group-specific traits
@@ -54,7 +59,11 @@ What can we do with:
 
 Important to remember, this is just **prioritising**, not proving.
 
+. . .
+
 In the future, these may be the "first step" of a research project.
+
+. . .
 
 Some details might be simplified in the following examples.
 
@@ -62,16 +71,25 @@ Some details might be simplified in the following examples.
 
 # Gaur deletion of *TAS2R46*
 
-Based on work from https://www.nature.com/articles/s41467-022-30680-2.
-
+Based on work from \
 Leonard et al. **Structural variant-based pangenome construction has low sensitivity to variability of haplotype-resolved bovine assemblies**. *Nature communications* (2022).
 
-Pangenome containing five cattle breeds (*B. t. taurus* and *B. t. indicus*) and one wild bovine (*Bos gaurus*).
+. . .
+
+We had one assembly for each of five cattle breeds (*B. t. taurus* and *B. t. indicus*) and one wild bovine (*Bos gaurus*).
+
+The pangenome was built with `minigraph`.
+
+---
+
+# Gaur deletion of *TAS2R46*
 
 Gaur diverged from cattle ~5M years ago, so what evolved in that time? \
 Lots of mutations obviously, but which ones matter...
 
-TODO: image of gaur?
+. . .
+
+![gaur deletion](img/gaur_hereford.png){ width=75% }
 
 ---
 
@@ -80,51 +98,71 @@ TODO: image of gaur?
 
 We start with the reference annotation, converting GFF to BED.
 
-```
+```ruby
 1	ensembl	gene	339070	350389	.	-	.	gene_id "ENSBTAG00000006648"
-1	ensembl	CDS		350267	350389	.	-	0	gene_id "ENSBTAG00000006648"
+1	ensembl	CDS 		350267	350389	.	-	0	gene_id "ENSBTAG00000006648"
 
 ```
-We then check structural variants unique to gaur/cattle that totally overlap genes.
-Manually curate the handful of "affected" genes.
 
-We'll do this later in the practical session!
+. . .
+
+*Do any of our graph bubbles overlap these genic regions?*
+
+. . .
+
+We can then **manually** curate the **handful** of "affected" genes.
 
 ---
 
 # Gaur deletion of *TAS2R46*
 
-BTA5 has a 17 Kb deletion unique to gaur that spans
+BTA5 has a 17 Kb deletion **unique to gaur** that spans
+
  - *TAS2R46*
  - *ENSBTAG00000001336*
 
-![gaur deletion](img/gaur_deletion.svg)
+. . .
 
-Easy to find as total overlap
+![gaur deletion](img/gaur_deletion.svg){ width=65% }
+
+. . .
+
+Easy to find as the bubble totally overlaps the genic regions.
 
 ---
 
 # eVNTR for *LOC112449094* in cattle
 
-Based on https://link.springer.com/article/10.1186/s13059-023-02969-y.
-
+Based on work from \
 Leonard et al. **Graph construction method impacts variation representation and analyses in a bovine super-pangenome**. *Genome Biology* (2023).
+
+. . .
 
 Pangenome containing seven *B. t. taurus*, two *B. t. indicus*, and three wild bovine (*Bos gaurus*, *Bos grunniens*, and *Bison bison*).
 
+. . .
+
 Looking at VNTR (variable number tandem repeat) copy numbers in the graph.
+
+. . .
+
+Graphs were build with `pggb`, `cactus`, and `minigraph`, with similar results.
 
 ---
 
 # eVNTR for *LOC112449094* in cattle
 
-Big outlier in copy number between non-cattle and cattle, worth following up.
+We found a big outlier in copy number between non-cattle and cattle. \
+We prioritised it for following up.
 
+. . .
 
+![VNTR genotyping](img/VNTR_copies.svg){ width=85% }
 
-![VNTR genotyping](img/VNTR_copies.svg)
+. . .
 
-We found within-breed variability in Braunvieh for which we had RNA-seq.
+We later found within-breed variability in Braunvieh for which we had RNA-seq. \
+This was not in the graph, but inspired by finding this example.
 
 ---
 
@@ -132,34 +170,48 @@ We found within-breed variability in Braunvieh for which we had RNA-seq.
 
 We found a strong association for increased *LOC112449094* expression with additional VNTR copies.
 
-![eVNTR](img/eVNTR.svg)
+![eVNTR](img/eVNTR.svg){ width=85% }
 
-Can complete the story with allele-specific expression in the Nellore x Brown Swiss.
+. . .
+
+We completed the story with allele-specific expression in the Nellore x Brown Swiss (this was in the graph).
 
 ---
 
 # Wisent deletion of *THRSP*
 
-Based on the work in https://www.biorxiv.org/content/10.1101/2024.04.08.588592v1.
-
+Based on work from \
 Bortoluzzi et al. **Wisent genome assembly uncovers extended runs of homozygosity and a large deletion that inactivates the thyroid hormone responsive gene**. *Biorxiv* (2024).
 
-European (and American) Bison diverged ~1.5M years ago, and also have distinct habitats/adaptions.
+. . .
 
-We can be a bit more precise, and look for clade-specific SVs that overlap genes.
-
-TODO: add upsetplot
+European (and American) Bison diverged ~1.5M years ago from cattle, and also have distinct habitats/adaptions.
 
 ---
 
 # Wisent deletion of *THRSP*
 
-We find a partial deletion of *THRSP* (complete deletion of exon 1). \
+We can be a bit more precise, and look for *clade-specific* SVs that overlap genes.
+
+. . .
+
+![SV upset](img/wisent_upset.svg){ width=95% }
+
+. . .
+
+Almost 16k SVs private to the yak clade and 12k SVs private to the bison clade!
+
+---
+
+# Wisent deletion of *THRSP*
+
+We find a partial deletion of *THRSP* (complete deletion of exon 1).
+
+![THRSP bandage](img/wisent_bandage.svg){ width=95% }
+
+. . .
+
 The other exon is noncoding, so this is effectively a full knockout.
-
-Short reads support deletion (and ancestral reads).
-
-TODO: add bandage
 
 ---
 
@@ -168,44 +220,87 @@ TODO: add bandage
 We have a limited sample size (*n*=2 for bison and *n*=5 for non-bison). \
 SRA/ENA have many more short read sequencing datasets for bison/cattle.
 
-> Short read sequencing with a pangenome is a poweful tool!!
+. . .
 
-TODO: add short read plot
+There were recently even ancestral reads from auroch made public!!
+
+. . .
+
+![THRSP bandage](img/wisent_coverage.svg){ width=85% }
+
+---
+
+# The good
+
+Key takeaway
+
+> Short read sequencing is ...
+
+---
+
+# The good
+
+Key takeaway
+
+> Short read sequencing is powerful when combined with a pangenome!
 
 ---
 
 # The good, the bad, and the unknown
 
 So far we've mostly examined only deletions, why?
+
+. . .
+
+:::incremental
  - nonreference sequence is rarely annotated
  - coordinates for insertions are not helpful
  - duplications/inversions are also not always obvious in graphs
+:::
 
-Can we find QTL outside of annotated elements?
+
+Can we find QTL *outside* of annotated elements?
 
 ---
 
 # Functional nonreference sequence
 
-Based on the work in https://www.pnas.org/doi/abs/10.1073/pnas.2101056118.
-
+Based on work from \
 Crysnanto et al. **Novel functional sequences uncovered through a bovine multiassembly graph**. *PNAS* (2021).
+
+. . .
 
 We can identify tens of megabases of nonreference sequence, but then what? \
 Since that sequence is *nonreference*, we likely have limited knowledge about it.
 
-Unmapped reads now can align to the reference, so we can locally assembly a nonreference transcriptome. \
-These putative genes can show differential expression, indicating potential functional consequences.
+. . .
 
-TODO: add image
+Unmapped reads now can align to the reference, so we can locally assembly a nonreference transcriptome.
+
+---
+
+# Functional nonreference sequence
+
+There were **374** complete gene models!
+
+![nonreference genes](img/nonreference_volcano.png){ width=45% }
+
+. . .
+
+Many related to immune functions, a region rich with SVs.
 
 ---
 
 # Functional nonreference sequence
 
 "Reference" genomes being annotated is practical, not ideal. \
-We now can have many assemblies per population/breed/species. \
+We now can have many assemblies per population/breed/species.
+
+. . .
+
 Annotation is still computationally expensive, but Ensembl and others are working on pangenome annotation.
+
+. . .
 
 As **annotated** genomes become more readily available, "nonreference" will fade away.
 
@@ -213,10 +308,11 @@ As **annotated** genomes become more readily available, "nonreference" will fade
 
 # More general approaches
 
-Approach the same problem but from the opposite end.
+Approach the same problem but from the opposite end:
 
+>Rather than looking for genes that are affected in the pangenome, we want find regions in the pangenome associated with traits.
 
-Rather than looking for genes that are different amongst the assemblies, we want to look for where in the pangenome do assemblies separate into groups.
+. . .
 
 How can we query the graph for such information?
 
@@ -225,81 +321,182 @@ How can we query the graph for such information?
 # More general approaches
 
 Linear equivalents to this question are:
+
  - GWAS
  - signatures of selection
- - Fst
+ - $F_{st}$
  - XP-EHH
 
- Many of which are possible, but have not yet been implemented efficiently for pangenomes.
+. . .
+
+Many of which are possible in theory, but have not yet been implemented efficiently for pangenomes.
 
 ---
 
 # White headed phenotype
 
-Based on the work in https://www.biorxiv.org/content/10.1101/2024.02.02.578587v1.
-
+Based on work from \
 Milia et al. **Taurine pangenome uncovers a segmental duplication upstream of KIT associated with depigmentation in white-headed cattle**. *Biorxiv* (2024).
 
-Let's use a simple and easy-to-record phenotype: head color.
+. . .
 
-This trait is generally breed-defined as well.
+Let's use a simple and easy-to-record phenotype: head colour.
 
-TODO: image of hereford, brown swiss, simmental, chianina
+. . .
+
+Crucially, these types of trait are generally breed-defined as well.
+
+![white heads](img/cattle_head.png){ width=95% }
+
 
 ---
 
 # White headed phenotype
 
-We built a large pangenome with multiple assemblies per trait group (white- or colour-headed).
+We built a "large" pangenome with multiple assemblies per trait group (four white- and 19 colour-headed). \
+Tested with `minigraph` and later `pggb`.
+
+. . .
 
 We now need to "scan" the pangenome to find potential QTL. \
 But how do we scan?
 
-Broadly, we want to find where in the graph
- - W~W
- - C~C
- - W!~C
+. . .
 
 Looking for segregating nodes (sequence) is a start.
 
+. . .
+
+Broadly, we want to find where in the graph
+
+ - $W \approx W$
+ - $C \approx C$
+ - $W \not\approx C$
+
 # White headed phenotype
 
-Define the Jaccard similarity metric.
 
-How do we slide across the genome?
+We binned the graph into 1 Kb regions (according to the reference)
 
-Identify peaks.
+```bash
+odgi extract -i graph.gfa -b 1_Kb_bins.bed -s
+```
 
-Limitations
-> related to trait consistency/divergence \
-Size of QTL (a SNP would get lost)
+. . .
+
+And then calculated the pairwise Jaccard similarity per bin
+
+```bash
+for subgraph in *.gfa
+do
+  odgi similarity -i $subgraph
+done
+```
+
+. . .
+
+This is conceptually straightforward...
+
+. . .
+
+The implementation is **not**.
 
 ---
 
 # White headed phenotype
 
-The identified region is extremely interesting, but our sample size is still limited. \
-Testing hundreds of assemblies is (currently) impossible (for every step), so we again turn to large short read sequencing datasets.
+We define the similarity ratio as
 
-We can also infer which samples cover (or don't) which paths through the bubble of interest.
+$$ \frac{\langle J \rangle_{W \approx W} + \langle J \rangle_{C \approx C}}{2\langle J \rangle_{C \not\approx W}}$$
+
+---
+
+# White headed phenotype
+
+After scanning all 29 autosome pangenomes, we find something!
+
+![white peak](img/white_jaccard.svg){ width=95% }
+
+---
+
+# White headed phenotype
+
+The peak region was near *KIT* (known to be associated with coat colour).
+
+. . .
+
+![white bubble](img/white_bubble.png){ width=95% }
+
+---
+
+# White headed phenotype
+
+Again we have a "large" pangenome, but a small sample size. \
+We turned to public samples (including many more breeds).
+
+. . .
+
+![white coverage](img/white_alignments.svg){ width=95% }
+
+---
+
+# White headed phenotype
+
+This study was particularly *lucky*.
+
+ - *KIT* is a well-known gene for coat colour phenotypes
+ - the SV was large but overall conserved across breeds
+ - the pangenome bubble structure was not a DAG, which emphasised the CNV nature
+
+. . .
+
+This will need some generalisations to work with other phenotypes or different genotypes.
 
 ---
 
 # Summary
 
+. . .
+
+:::incremental
  - Pangenomes are a powerful *tool* for exploring functionally relevant sequence.
  - More annotated genomes (and more genomes containing functionally different sequence) will further empower these approaches.
  - Short read sequencing is still incredibly useful **when** combined with a pangenome graph.
  - Many of these methods are still "experimental" and rarely straightforward.
+:::
 
 ---
+
+# Not the end of the line
+
+The course will live on at
+
+https://github.com/ASLeonard/pangenome_summer_school
+
+All my slides and practicals are there.
+
+. . .
+
+Please leave
+
+ - issues (for complaints)
+ - pull requests (for suggestions)
+ - or email me ([alleonard@ethz.ch](alleonard@ethz.ch))
+
+. . .
+
+Thank you for being patient!
+
+---
+
 
 # Practical: Using a pangenome to identify functional variants
 
 Goals of this afternoon:
+
  - Identify annotated genes overlapping/near pangenomic bubbles
  - Identify pangenomic regions associated with binary phenotypes
- - Wrap up any other pangenomic questions
+ - Wrap up **any other** pangenomic questions
 
 ---
 
