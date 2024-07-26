@@ -42,13 +42,13 @@ We'll start by subsetting the VCF using `bcftools view` with the `-s <sample nam
 For SVs private to Wisent
 
 ```
-bedtools intersect -a data/ARS-UCD1.2.exons.bed -b <(bcftools view -s WIS -x pangenome/minigraph.SV.vcf) > Wisent_specific_genes.bed
+bedtools intersect -a data/ARS-UCD1.2.exons.bed -b <(bcftools view -s WIS -x pangenome/minigraph.SV.vcf | sed 's/^HER/25/') > Wisent_specific_genes.bed
 ```
 
 or for ones segregating in Swiss breeds
 
 ```
-bedtools intersect -a data/ARS-UCD1.2.exons.bed -b <(bcftools view -s OBV,SIM,BSW -x pangenome/minigraph.SV.vcf) > Swiss_specific_genes.bed
+bedtools intersect -a data/ARS-UCD1.2.exons.bed -b <(bcftools view -s OBV,SIM,BSW -x pangenome/minigraph.SV.vcf | sed 's/^HER/25/') > Swiss_specific_genes.bed
 ```
 
 We can also try and convert the annotation (via BED) into the pangenome coordinates, and then load that into bandage so we can visualise the events better (requires BandageNG).
