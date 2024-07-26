@@ -19,3 +19,5 @@ Some associated exercises for
  - [Identification of small and structural variants](practicals/day3_afternoon.md)
  - [Aligning sequencing reads to a pangenome](practicals/day4_morning.md)
  - [Using a pangenome to identify a known functional variant](practicals/day5_afternoon.md)
+
+ Much of the data and intermediate files is [available](https://polybox.ethz.ch/index.php/s/iYpLPRdhMDotGIF).
