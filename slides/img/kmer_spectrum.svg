@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="110.52442mm"
+   height="64.924416mm"
+   viewBox="0 0 110.52442 64.924416"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25)"
+   sodipodi:docname="kmer_spectrum.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.1893044"
+     inkscape:cx="-108.88718"
+     inkscape:cy="77.356142"
+     inkscape:window-width="2560"
+     inkscape:window-height="1387"
+     inkscape:window-x="1440"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-100.80625,-78.31667)">
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 108.72609,78.361107 V 136.64798"
+       id="path1-3" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 211.33067,136.78027 H 108.5938"
+       id="path1-0-1"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.29285px;line-height:1.25;font-family:sans-serif;stroke-width:0.160982"
+       x="140.89069"
+       y="142.37749"
+       id="text1-4"><tspan
+         sodipodi:role="line"
+         id="tspan1-95"
+         style="stroke-width:0.160982"
+         x="140.89069"
+         y="142.37749"><tspan
+   style="font-style:italic"
+   id="tspan4">k</tspan>-mer multiplicity</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.29285px;line-height:1.25;font-family:sans-serif;fill:#a00000;fill-opacity:1;stroke:none;stroke-width:0.160982;stroke-opacity:1"
+       x="112.32282"
+       y="82.533348"
+       id="text1-4-0"><tspan
+         sodipodi:role="line"
+         id="tspan1-95-0"
+         style="fill:#a00000;fill-opacity:1;stroke:none;stroke-width:0.160982;stroke-opacity:1"
+         x="112.32282"
+         y="82.533348">read-only</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.29285px;line-height:1.25;font-family:sans-serif;fill:#272790;fill-opacity:1;stroke-width:0.160982"
+       x="137.16205"
+       y="106.17462"
+       id="text1-4-0-0"><tspan
+         sodipodi:role="line"
+         id="tspan1-95-0-5"
+         style="fill:#272790;fill-opacity:1;stroke-width:0.160982"
+         x="137.16205"
+         y="106.17462">1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.29285px;line-height:1.25;font-family:sans-serif;fill:#17bcb3;fill-opacity:1;stroke-width:0.160982"
+       x="159.90289"
+       y="85.679703"
+       id="text1-4-0-0-0"><tspan
+         sodipodi:role="line"
+         id="tspan1-95-0-5-6"
+         style="fill:#17bcb3;fill-opacity:1;stroke-width:0.160982"
+         x="159.90289"
+         y="85.679703">2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.29285px;line-height:1.25;font-family:sans-serif;fill:#ce3c66;fill-opacity:1;stroke-width:0.160982"
+       x="185.86395"
+       y="130.06549"
+       id="text1-4-0-0-0-1"><tspan
+         sodipodi:role="line"
+         id="tspan1-95-0-5-6-7"
+         style="fill:#ce3c66;fill-opacity:1;stroke-width:0.160982"
+         x="185.86395"
+         y="130.06549">3+</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.29285px;line-height:1.25;font-family:sans-serif;stroke-width:0.160982"
+       x="-113.94488"
+       y="103.98396"
+       id="text1-8-9"
+       transform="rotate(-90)"><tspan
+         sodipodi:role="line"
+         id="tspan1-1-3"
+         style="stroke-width:0.160982"
+         x="-113.94488"
+         y="103.98396">Count</tspan></text>
+    <path
+       style="fill:none;stroke:#a00000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.49129,78.317797 c 0.47191,55.372883 9.12392,58.204453 9.12392,58.204453"
+       id="path4" />
+    <path
+       style="fill:none;stroke:#272790;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 109.54741,136.51522 c 27.18619,-0.0652 20.52331,-35.25139 29.14995,-35.42686 8.62664,-0.17547 -0.25834,35.335 29.14995,35.42686"
+       id="path5"
+       sodipodi:nodetypes="czc" />
+    <path
+       style="fill:none;stroke:#ce3c66;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 157.2418,136.51196 c 22.18064,0.15731 11.03367,-4.69081 25.81764,-4.99529 12.59824,-0.25946 8.84853,4.68096 26.13226,4.99529"
+       id="path5-0"
+       sodipodi:nodetypes="csc" />
+    <path
+       style="fill:none;stroke:#17bcb3;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 132.20119,136.51539 c 29.29965,0.15731 14.36292,-55.859173 29.14995,-55.905893 11.70836,-0.037 7.19437,56.258973 29.14995,55.905893"
+       id="path5-2"
+       sodipodi:nodetypes="csc" />
+  </g>
+</svg>

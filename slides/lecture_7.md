@@ -211,7 +211,7 @@ Cumulative non-reference sequence in the draft human pangenome.
 
 Different genomic regions are differently "conserved".
 
-![panacus growth](img/panacus_growth2.png){ width=80% }
+![panacus growth](img/panacus_growth.png){ width=80% }
 
 ---
 
